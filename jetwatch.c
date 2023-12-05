@@ -1,5 +1,7 @@
-/*
- *  jetgpioclk.c: Enable the Orin pwm clocks  
+/* GNU GENERAL PUBLIC LICENSE Version 2
+ *  
+ * jetwatch.c: Kernel loadable module to manage the Orin clocks
+ *  
  */
 
 #include <linux/init.h>
@@ -21,24 +23,22 @@
 
 int init_module(void);
 void cleanup_module(void);
-static int pwmclk_probe(void);
-static int pwmclk_remove(void);
+static int jetwatch_probe(void);
+static int jetwatch_remove(void);
 
+/* Enable clock  */
 
-/* Enable clock function  */
-
-static int pwmclk_probe(void){
+static int jetwatch_probe(void){
   int ret = 0;
   
   return ret;
 }
 
-/* Disable clocks function  */
+/* Disable clock  */
 
-static int pwmclk_remove(void){
+static int jetwatch_remove(void){
   int ret = 0;
   
-
   return ret;
 }
 
@@ -46,7 +46,7 @@ static int pwmclk_remove(void){
 
 int init_module(void){
   int ret = 0;
-  ret = pwmclk_probe();
+  ret = jetwatch_probe();
   
   //pr_info("Return number probe %d.\n", ret);
 
@@ -57,35 +57,30 @@ int init_module(void){
 
 void cleanup_module(void){
   
-  pwmclk_remove();
+  jetwatch_remove();
 
   //pr_info("Return number remove %d.\n", ret);  
 
 }
 
-static const struct tegra_pwm_soc tegra194_pwm_soc = {
-	.num_channels = 1,
-	.max_frequency = 408000000UL,
-};
-
-static const struct of_device_id jetgpio_of_match[] = {
+static const struct of_device_id jetwatch_of_match[] = {
 	{ .compatible = "nvidia,tegra194-pwm", .data = &tegra194_pwm_soc },
 	{ }
 };
 
 MODULE_DEVICE_TABLE(of, jetgpio_of_match);
 
-static struct platform_driver jetgpio_driver = {
+static struct platform_driver jetwatch_driver = {
 	.driver = {
-		.name = "jetgpio",
-		.of_match_table = jetgpio_of_match,
+		.name = "jetwatch",
+		.of_match_table = jetwatch_of_match,
 		.pm = &tegra_pwm_pm_ops,
 	},
-	.probe = tegra_pwm_probe,
-	.remove = tegra_pwm_remove,
+	.probe = jetwatch_probe,
+	.remove = jetwatch_remove,
 };
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("RUBBERAZER");
-MODULE_DESCRIPTION("PWM clocks switch");
+MODULE_DESCRIPTION("Orin clock manager");
 MODULE_INFO(intree, "Y");
