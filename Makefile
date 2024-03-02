@@ -1,8 +1,9 @@
-obj-m += jetwatch.o
+obj-m += jetclocks.o
+
+PWD := $(CURDIR)
 
 all:
-	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
 
 clean:
-	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
-	$(RM) other/cat_noblock *.plist
+	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
