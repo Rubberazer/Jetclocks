@@ -33,14 +33,14 @@ static void __exit jetclocks_exit(void)
 
 static int jetclocks_probe(struct platform_device *pdev)
 {
-  pr_info("probe\n");
-  return 0;
+	pr_info("probe\n");
+	return 0;
 }
 
 static int jetclocks_remove(struct platform_device *pdev)
 {
-  pr_info("remove\n");
-  return 0;
+	pr_info("remove\n");
+	return 0;
 }
 
 static const struct of_device_id jetclocks_of_match[] = {
