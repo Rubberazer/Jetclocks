@@ -1,6 +1,7 @@
 # Jetsonclocks
 Kernel module to control the Jetson Orin clocks.
 The aim of this kernel module is to provide applications in user space access to the Cloks and Resets in Jetson Orin machines through system calls - ioctls().
+This effectively provides an API to manage the BPMP also known on Jetson machines as CAR (Clock and Resets) Controller.
 
 
 This module is inspired by the NVIDIA MODS kernel driver and it uses its device tree description. See also the following files in the Linux for Tegra kernel sources:
