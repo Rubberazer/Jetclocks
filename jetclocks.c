@@ -3,7 +3,9 @@
  * jetclocks.c
  *
  * Based on the NVIDIA MODS kernel driver by NVIDIA CORPORATION. 
- * 
+ * The jetclocks kernel module is a facility that provides a friendly API
+ * to applications in user space to the clocks and resets (CAR) in 
+ * Nvidia Jetson Orin machines.
  *
  */
 
