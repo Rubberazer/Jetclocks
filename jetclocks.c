@@ -1,5 +1,8 @@
 /*
- * jetclock.c
+ * jetclocks.c
+ *
+ *
+ *
  */
 
 #include <linux/init.h>
@@ -13,10 +16,9 @@
 #include <linux/slab.h>
 
 struct jetclocks {
-	struct device *dev;
-	struct clk *clk;
-	struct reset_control*rst;
-
+    struct device *dev;
+    struct clk *clk;
+    struct reset_control*rst;
 };
 
 /*static int __init jetclocks_init(void)
@@ -33,30 +35,65 @@ static void __exit jetclocks_exit(void)
 
 static int jetclocks_probe(struct platform_device *pdev)
 {
-	pr_info("probe\n");
-	return 0;
+    struct  jetclocks *jetclock_n;
+    int ret;
+    
+    pr_info("starting probe\n");
+    
+    jetclock_n = devm_kzalloc(&pdev->dev, sizeof(*jetclock_n), GFP_KERNEL);
+    if (!jetclock_n)
+	return -ENOMEM;
+    
+    jetclock_n->dev = &pdev->dev;
+    platform_set_drvdata(pdev, jetclock_n);
+    
+    jetclock_n->clk = devm_clk_get(&pdev->dev, "pwm1");
+    if (IS_ERR(jetclock_n->clk))
+	return PTR_ERR(jetclock_n->clk);
+
+    ret = clk_prepare(jetclock_n->clk);
+    if (ret) {
+	dev_err(&pdev->dev, "Clock prepare failed\n");
+	return ret;
+    }
+
+    ret = clk_enable(jetclock_n->clk);
+    if (ret) {
+	dev_err(&pdev->dev, "Clock prepare failed\n");
+	return ret;
+    }
+    return 0;
 }
 
 static int jetclocks_remove(struct platform_device *pdev)
 {
-	pr_info("remove\n");
-	return 0;
+    struct jetclocks *jetclock_r;
+
+    pr_info("starting remove\n");
+
+    jetclock_r = platform_get_drvdata(pdev);
+
+    if (WARN_ON(!jetclock_r))
+	return -ENODEV;
+
+    clk_disable_unprepare(jetclock_r->clk);
+    return 0;
 }
 
 static const struct of_device_id jetclocks_of_match[] = {
-	{ .compatible = "nvidia,mods-clocks"},
-	{ }
+    { .compatible = "nvidia,mods-clocks"},
+    { }
 };
 
 MODULE_DEVICE_TABLE(of, jetclocks_of_match);
 
 static struct platform_driver jetclocks_driver = {
-	.driver = {
-		.name = "jetclocks",
-		.of_match_table = jetclocks_of_match,
-	},
-	.probe = jetclocks_probe,
-	.remove = jetclocks_remove,
+    .driver = {
+        .name = "jetclocks",
+        .of_match_table = jetclocks_of_match,
+    },
+    .probe = jetclocks_probe,
+    .remove = jetclocks_remove,
 };
 
 module_platform_driver(jetclocks_driver);
