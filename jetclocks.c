@@ -1,7 +1,9 @@
-/*
+/* SPDX-License-Identifier: GPL-2.0-or-later
+ * 
  * jetclocks.c
  *
- *
+ * Based on the NVIDIA MODS kernel driver by NVIDIA CORPORATION. 
+ * 
  *
  */
 
@@ -21,21 +23,10 @@ struct jetclocks {
     struct reset_control*rst;
 };
 
-/*static int __init jetclocks_init(void)
-{
-  pr_info("Init\n");
-  jetclocks_probe()
-  return 0;
-}
-
-static void __exit jetclocks_exit(void)
-{
-  pr_info("exit\n");
-  }*/
-
 static int jetclocks_probe(struct platform_device *pdev)
 {
     struct  jetclocks *jetclock_n;
+    
     int ret;
     
     pr_info("starting probe\n");
@@ -98,10 +89,8 @@ static struct platform_driver jetclocks_driver = {
 
 module_platform_driver(jetclocks_driver);
 
-/*module_init(jetclocks_init);
-  module_exit(jetclocks_exit);*/
-
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Rubberazer <rubberazer@outlook.com>");
 MODULE_DESCRIPTION("Jetson Orin CAR for user space");
 MODULE_ALIAS("platform:jetclock");
+
