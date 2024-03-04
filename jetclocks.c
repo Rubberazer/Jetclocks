@@ -4,8 +4,8 @@
  *
  * Based on the NVIDIA MODS kernel driver by NVIDIA CORPORATION. 
  * The jetclocks kernel module is a facility that provides a friendly API
- * to applications in user space to the clocks and resets (CAR) in 
- * Nvidia Jetson Orin machines.
+ * to applications in user space to the Clocks and Resets Controller (CAR) 
+ * in Nvidia Jetson Orin machines.
  *
  */
 
@@ -22,7 +22,7 @@
 struct jetclocks {
     struct device *dev;
     struct clk *clk;
-    struct reset_control*rst;
+    struct reset_control *rst;
 };
 
 static int jetclocks_probe(struct platform_device *pdev)
