@@ -21,7 +21,7 @@
 
 struct jetclocks {
     struct device *dev;
-    struct clk *clk[40];
+    struct clk *clk;
     struct reset_control *rst;
 };
 
@@ -40,17 +40,17 @@ static int jetclocks_probe(struct platform_device *pdev)
     jetclock_n->dev = &pdev->dev;
     platform_set_drvdata(pdev, jetclock_n);
     
-    jetclock_n->clk[0] = devm_clk_get(&pdev->dev, "pwm1");
+    jetclock_n->clk = devm_clk_get(&pdev->dev, "pwm1");
     if (IS_ERR(jetclock_n->clk))
 	return PTR_ERR(jetclock_n->clk);
 
-    ret = clk_prepare(jetclock_n->clk[0]);
+    ret = clk_prepare(jetclock_n->clk);
     if (ret) {
 	dev_err(&pdev->dev, "Clock prepare failed\n");
 	return ret;
     }
 
-    ret = clk_enable(jetclock_n->clk[0]);
+    ret = clk_enable(jetclock_n->clk);
     if (ret) {
 	dev_err(&pdev->dev, "Clock prepare failed\n");
 	return ret;
@@ -69,7 +69,7 @@ static int jetclocks_remove(struct platform_device *pdev)
     if (WARN_ON(!jetclock_r))
 	return -ENODEV;
 
-    clk_disable_unprepare(jetclock_r->clk[0]);
+    clk_disable_unprepare(jetclock_r->clk);
     return 0;
 }
 
