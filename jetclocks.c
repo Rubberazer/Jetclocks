@@ -4,8 +4,8 @@
  *
  * Based on the NVIDIA MODS kernel driver by NVIDIA CORPORATION. 
  * The jetclocks kernel module is a facility that provides a friendly API
- * to applications in user space to the Clocks and Resets Controller (CAR) 
- * in Nvidia Jetson Orin machines.
+ * for applications in user space to access the Clocks and Resets Controller 
+ * (CAR) in Nvidia Jetson Orin machines.
  *
  */
 
@@ -21,56 +21,92 @@
 
 struct jetclocks {
     struct device *dev;
-    struct clk *clk[40];
+    struct clk *clk;
     struct reset_control *rst;
 };
 
-static int jetclocks_probe(struct platform_device *pdev)
+static int clock_enable(const char *clock, struct platform_device *pdev)
 {
-    struct  jetclocks *jetclock_n;
-    
     int ret;
     
-    pr_info("starting probe\n");
+    struct jetclocks *jetclock_e;
     
-    jetclock_n = devm_kzalloc(&pdev->dev, sizeof(*jetclock_n), GFP_KERNEL);
-    if (!jetclock_n)
+    jetclock_e = platform_get_drvdata(pdev);
+    if (WARN_ON(!jetclock_e))
+	 return -ENODEV;
+    
+    jetclock_e->clk = devm_clk_get(&pdev->dev, clock);
+    if (IS_ERR(jetclock_e->clk))
+	return PTR_ERR(jetclock_e->clk);
+
+    ret = clk_prepare(jetclock_e->clk);
+    if (ret) {
+	dev_err(&pdev->dev, "Clock prepare failed\n");
+	return ret;
+    }
+
+    ret = clk_enable(jetclock_e->clk);
+    if (ret) {
+	dev_err(&pdev->dev, "Clock enable failed\n");
+	return ret;
+    }
+
+    return 0;
+}
+
+static int clock_disable(const char *clock, struct platform_device *pdev)
+{
+    struct  jetclocks *jetclock_d;
+
+    jetclock_d = platform_get_drvdata(pdev);
+    if (WARN_ON(!jetclock_d))
+	 return -ENODEV;
+
+    jetclock_d->clk = devm_clk_get(&pdev->dev, clock);
+    if (IS_ERR(jetclock_d->clk))
+	return PTR_ERR(jetclock_d->clk);
+
+    clk_disable_unprepare(jetclock_d->clk);
+
+    return 0;
+}
+
+static int jetclocks_probe(struct platform_device *pdev)
+{
+    struct  jetclocks *jetclock_p;
+    const char *clock = "pwm1";
+    
+    int ret = 0;
+    
+    pr_info("Probing jetclocks\n");
+    
+    jetclock_p = devm_kzalloc(&pdev->dev, sizeof(*jetclock_p), GFP_KERNEL);
+    if (!jetclock_p)
 	return -ENOMEM;
     
-    jetclock_n->dev = &pdev->dev;
-    platform_set_drvdata(pdev, jetclock_n);
-    
-    jetclock_n->clk[0] = devm_clk_get(&pdev->dev, "pwm1");
-    if (IS_ERR(jetclock_n->clk))
-	return PTR_ERR(jetclock_n->clk);
+    jetclock_p->dev = &pdev->dev;
+    platform_set_drvdata(pdev, jetclock_p);
 
-    ret = clk_prepare(jetclock_n->clk[0]);
-    if (ret) {
-	dev_err(&pdev->dev, "Clock prepare failed\n");
-	return ret;
-    }
-
-    ret = clk_enable(jetclock_n->clk[0]);
-    if (ret) {
-	dev_err(&pdev->dev, "Clock prepare failed\n");
-	return ret;
-    }
-    return 0;
+    ret = clock_enable(clock, pdev);
+   
+    return ret;
 }
 
 static int jetclocks_remove(struct platform_device *pdev)
 {
     struct jetclocks *jetclock_r;
-
-    pr_info("starting remove\n");
+    int ret = 0;
+    const char *clock = "pwm1";
+    
+    pr_info("Removing jetclocks\n");
 
     jetclock_r = platform_get_drvdata(pdev);
-
     if (WARN_ON(!jetclock_r))
-	return -ENODEV;
-
-    clk_disable_unprepare(jetclock_r->clk[0]);
-    return 0;
+	 return -ENODEV;
+    
+    ret = clock_disable(clock, pdev);
+    
+    return ret;
 }
 
 static const struct of_device_id jetclocks_of_match[] = {
