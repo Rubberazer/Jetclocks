@@ -130,32 +130,33 @@ static int jetclocks_probe(struct platform_device *pdev)
 
     /* Character device */
 
-    if (alloc_chrdev_region(&major_devt, 0, 1, "jetclk") < 0) {
+    if (alloc_chrdev_region(&major_devt, 0, 1, "jetclocks") < 0) {
 	pr_err("Device number could not be allocated!\n");
-	return -1;
+	return -EINVAL;
     }
 
-    if ((cls = class_create(THIS_MODULE, "jetclkclass")) == NULL) {
+    if ((cls = class_create(THIS_MODULE, "jetclockclass")) == NULL) {
 	pr_err("Device class can not be created!\n");
-	unregister_chrdev_region(major_devt, 1);
-	return -1;
+	class_destroy(cls);
+	return -EINVAL;
     } 
 
     
-    if (device_create(cls, NULL, major_devt, NULL, "jetclk") == NULL) {
+    if (device_create(cls, NULL, major_devt, NULL, "jetclocks") == NULL) {
 	printk("Can not create device file!\n");
-	class_destroy(cls);
-	return -1;
+	unregister_chrdev_region(major_devt, 1);
+	return -ENODEV;
     }
     
-	/* Initialize device file */
+    /* Initialize device file */
+       
     cdev_init(&jetclocks_dev, &jetclocks_fops);
     
     /* Register device to kernel */
     if (cdev_add(&jetclocks_dev, major_devt, 1) == -1) {
 	printk("Registering of device to kernel failed!\n");
 	device_destroy(cls, major_devt);
-	return -1;
+	return -ENODEV;
     }
         
     pr_info("jetclocks module loaded\n");
@@ -174,10 +175,12 @@ static int jetclocks_remove(struct platform_device *pdev)
     if (WARN_ON(!jetclock_r))
 	 return -ENODEV;
 
-    dev_t dev = MKDEV(major, 0);
+    /* Removing Character device*/
 
     cdev_del(&jetclocks_dev);
-    unregister_chrdev_region(dev, 1);
+    device_destroy(cls, major_devt);
+    class_destroy(cls);
+    unregister_chrdev_region(major, 1);
     
     pr_info("jetclocks module unloaded\n");
     
