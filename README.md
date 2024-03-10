@@ -29,59 +29,58 @@ This module is basically a platfrom driver and makes use of the device tree, so 
 
 - Preprocess the overlay file with some kernel headers:
 
-  	cd ~/Jetclocks
-  	cpp -nostdinc -I ~/Linux_for_Tegra/source/public/hardware/nvidia/soc/t23x/kernel-include/ -undef -x assembler-with-cpp jetclocks.dtsi  jetclocks.dtsi.new
+    cd ~/Jetclocks
+    cpp -nostdinc -I ~/Linux_for_Tegra/source/public/hardware/nvidia/soc/t23x/kernel-include/ -undef -x assembler-with-cpp jetclocks.dtsi  jetclocks.dtsi.new
 
 - Compile overlay:
 
-  	dtc -I dts -O dtb ./jetclocks.dtsi.new -o ./jetclocks.dtbo
+    dtc -I dts -O dtb ./jetclocks.dtsi.new -o ./jetclocks.dtbo
 
 - Check current device tree in use:
 
-  	sudo nano /boot/extlinux/extlinux.conf
+    sudo nano /boot/extlinux/extlinux.conf
 
 - You should have something like:
 
-        TIMEOUT 30
-	DEFAULT primary
+  TIMEOUT 30
+  DEFAULT primary
 
-	MENU TITLE L4T boot options
+  MENU TITLE L4T boot options
 
-	LABEL primary
+  LABEL primary
 
-	LINUX /boot/Image
-      	FDT /boot/dtb/kernel_tegra234-p3767-0004-p3768-0000-a0.dtb
-      	INITRD /boot/initrd
-      	APPEND ${cbootargs} root=PARTUUID=09a82924-13e4-40cf-9a0a-b077024483e0 rw rootwait rootfstype=ext4 mminit_loglevel=4 console=ttyTCU0,115200 console=ttyAMA0,115200 firmware_class.path=/etc/firmware fbcon=m>
+  LINUX /boot/Image
+  FDT /boot/dtb/kernel_tegra234-p3767-0004-p3768-0000-a0.dtb
+  INITRD /boot/initrd
+  APPEND ${cbootargs} root=PARTUUID=09a82924-13e4-40cf-9a0a-b077024483e0 rw rootwait rootfstype=ext4 mminit_loglevel=4 console=ttyTCU0,115200 console=ttyAMA0,115200 firmware_class.path=/etc/firmware fbcon=m>
 
 - Make sure there is a backup entry, copy and paste the primary label inmediately, call it backup, afterwards rename the FDT with the name of the future device tree blob, let's call it new in our example. It should look something like this:
 
-       	TIMEOUT 30
-	DEFAULT primary
+  TIMEOUT 30
+  DEFAULT primary
 
-	MENU TITLE L4T boot options
+  MENU TITLE L4T boot options
 
-	LABEL primary
+  LABEL primary
 
-	LINUX /boot/Image
-      	FDT /boot/dtb/new.dtb
-      	INITRD /boot/initrd
-      	APPEND ${cbootargs} root=PARTUUID=09a82924-13e4-40cf-9a0a-b077024483e0 rw rootwait rootfstype=ext4 mminit_loglevel=4 console=ttyTCU0,115200 console=ttyAMA0,115200 firmware_class.path=/etc/firmware fbcon=m>
+  LINUX /boot/Image
+  FDT /boot/dtb/new.dtb
+  INITRD /boot/initrd
+  APPEND ${cbootargs} root=PARTUUID=09a82924-13e4-40cf-9a0a-b077024483e0 rw rootwait rootfstype=ext4 mminit_loglevel=4 console=ttyTCU0,115200 console=ttyAMA0,115200 firmware_class.path=/etc/firmware fbcon=m>
 
-	LABEL backup
+  LABEL backup
 
-	LINUX /boot/Image
-      	FDT /boot/dtb/kernel_tegra234-p3767-0004-p3768-0000-a0.dtb
-      	INITRD /boot/initrd
-      	APPEND ${cbootargs} root=PARTUUID=09a82924-13e4-40cf-9a0a-b077024483e0 rw rootwait rootfstype=ext4 mminit_loglevel=4 console=ttyTCU0,115200 console=ttyAMA0,115200 firmware_class.path=/etc/firmware fbcon=m>
-
+  LINUX /boot/Image
+  FDT /boot/dtb/kernel_tegra234-p3767-0004-p3768-0000-a0.dtb
+  INITRD /boot/initrd
+  APPEND ${cbootargs} root=PARTUUID=09a82924-13e4-40cf-9a0a-b077024483e0 rw rootwait rootfstype=ext4 mminit_loglevel=4 console=ttyTCU0,115200 console=ttyAMA0,115200 firmware_class.path=/etc/firmware fbcon=m>
 	
 - Apply overlay blob (dtbo) to main dt blob
 
-  	cd ~/Jetclocks
-  	sudo cp jetclocks.dtbo /boot/dtb
-	cd /boot/dtb
-  	sudo fdtoverlay -i kernel_tegra234-p3767-0004-p3768-0000-a0.dtb -o new.dtb jetclocks.dtbo
+    cd ~/Jetclocks
+    sudo cp jetclocks.dtbo /boot/dtb
+    cd /boot/dtb
+    sudo fdtoverlay -i kernel_tegra234-p3767-0004-p3768-0000-a0.dtb -o new.dtb jetclocks.dtbo
 
 - Make sure that everything is OK, if you corrupt your device tree and your backup label in extlinux.conf is not correct you will be in trouble.
 
