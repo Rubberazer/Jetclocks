@@ -2,7 +2,7 @@
  * 
  * jetclocks.c
  *
- * Based on the NVIDIA MODS kernel driver by NVIDIA CORPORATION. 
+ * Inspired by the NVIDIA MODS kernel driver by NVIDIA CORPORATION. 
  * The jetclocks kernel module is a facility that provides a friendly API
  * for applications in user space to access the Clocks and Resets Controller 
  * (CAR) in Nvidia Jetson Orin machines.
@@ -23,57 +23,78 @@
 #include <linux/slab.h>
 
 struct jetclocks {
+    struct cdev cdev;
     struct device *dev;
     struct clk *clk;
     struct reset_control *rst;
 };
 
 static unsigned int major;
-static struct cdev jetclocks_dev;
 static dev_t major_devt;
+static struct jetclocks *jetclocks_dev;
 static struct class *cls;
 
 int jetclocks_open(struct inode * inode, struct file * filp)
 {
-    pr_info("Someone tried to open me\n");
+    pr_info("Opening jetclocks chardev\n");
     return 0;
 }
 
 int jetclocks_release(struct inode * inode, struct file * filp)
 {
-    pr_info("Someone closed me\n");
+    pr_info("Closing jetclocks chardev\n");
     return 0;
 }
-
-ssize_t jetclocks_read (struct file *filp, char __user * buf, size_t count,
-                                loff_t * offset)
+/*
+static long jetclocks_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 {
-    pr_info("Nothing to read guy\n");
+    switch(cmd){
+    case CLK_ENABLE:
+	clock_enable();
+	break;
+    case CLK_DISABLE:
+	clock_disable();
+	break;
+    case CLK_IS_ENABLED:
+	clock_is_enable();
+	break;
+    default:
+	return -ENOTTY;
+    }
     return 0;
-}
-
-
-ssize_t jetclocks_write(struct file * filp, const char __user * buf, size_t count,
-                                loff_t * offset)
-{
-    pr_info("Can't accept any data guy\n");
-    return count;
-}
+} */
 
 struct file_operations jetclocks_fops = {
-    owner:      THIS_MODULE,
-    open:       jetclocks_open,
-    release:    jetclocks_release,
-    read:       jetclocks_read,
-    write:      jetclocks_write,
+    owner:          THIS_MODULE,
+    open:           jetclocks_open,
+    release:        jetclocks_release,
+    //unlocked_ioctl: jetclocks_ioctl,
 };
+
+static int is_clock_enabled(const char *clock, struct platform_device *pdev)
+{
+    struct jetclocks *jetclock_i;
+       
+    jetclock_i = platform_get_drvdata(pdev);
+    if (WARN_ON(!jetclock_i))
+	 return -ENODEV;
+    
+    jetclock_i->clk = devm_clk_get(&pdev->dev, clock);
+    if (IS_ERR(jetclock_i->clk))
+	return PTR_ERR(jetclock_i->clk);
+
+    if (!jetclock_i->clk) {
+	return 0;
+    }
+    
+    return 1;
+}
 
 static int clock_enable(const char *clock, struct platform_device *pdev)
 {
-    int ret;
-    
     struct jetclocks *jetclock_e;
-    
+    int ret;
+       
     jetclock_e = platform_get_drvdata(pdev);
     if (WARN_ON(!jetclock_e))
 	 return -ENODEV;
@@ -116,17 +137,16 @@ static int clock_disable(const char *clock, struct platform_device *pdev)
 
 static int jetclocks_probe(struct platform_device *pdev)
 {
-    struct  jetclocks *jetclock_p;
     int ret = 0;
     
     pr_info("Probing jetclocks\n");
     
-    jetclock_p = devm_kzalloc(&pdev->dev, sizeof(*jetclock_p), GFP_KERNEL);
-    if (!jetclock_p)
+    jetclocks_dev = devm_kzalloc(&pdev->dev, sizeof(*jetclocks_dev), GFP_KERNEL);
+    if (!jetclocks_dev)
 	return -ENOMEM;
     
-    jetclock_p->dev = &pdev->dev;
-    platform_set_drvdata(pdev, jetclock_p);
+    jetclocks_dev->dev = &pdev->dev;
+    platform_set_drvdata(pdev, jetclocks_dev);
 
     /* Character device */
 
@@ -135,25 +155,23 @@ static int jetclocks_probe(struct platform_device *pdev)
 	return -EINVAL;
     }
 
+    major = MAJOR(major_devt);
+    
     if ((cls = class_create(THIS_MODULE, "jetclockclass")) == NULL) {
 	pr_err("Device class can not be created!\n");
 	class_destroy(cls);
 	return -EINVAL;
     } 
-
     
     if (device_create(cls, NULL, major_devt, NULL, "jetclocks") == NULL) {
 	printk("Can not create device file!\n");
 	unregister_chrdev_region(major_devt, 1);
 	return -ENODEV;
     }
-    
-    /* Initialize device file */
        
-    cdev_init(&jetclocks_dev, &jetclocks_fops);
+    cdev_init(&jetclocks_dev->cdev, &jetclocks_fops);
     
-    /* Register device to kernel */
-    if (cdev_add(&jetclocks_dev, major_devt, 1) == -1) {
+    if (cdev_add(&jetclocks_dev->cdev, major_devt, 1) == -1) {
 	printk("Registering of device to kernel failed!\n");
 	device_destroy(cls, major_devt);
 	return -ENODEV;
@@ -166,21 +184,15 @@ static int jetclocks_probe(struct platform_device *pdev)
 
 static int jetclocks_remove(struct platform_device *pdev)
 {
-    struct jetclocks *jetclock_r;
+    dev_t major_devt = MKDEV(major, 0);
     int ret = 0;
     
     pr_info("Removing jetclocks\n");
-
-    jetclock_r = platform_get_drvdata(pdev);
-    if (WARN_ON(!jetclock_r))
-	 return -ENODEV;
-
-    /* Removing Character device*/
-
-    cdev_del(&jetclocks_dev);
+    
+    cdev_del(&jetclocks_dev->cdev);
     device_destroy(cls, major_devt);
     class_destroy(cls);
-    unregister_chrdev_region(major, 1);
+    unregister_chrdev_region(major_devt, 1);
     
     pr_info("jetclocks module unloaded\n");
     
@@ -205,6 +217,6 @@ static struct platform_driver jetclocks_driver = {
 
 module_platform_driver(jetclocks_driver);
 
-MODULE_LICENSE("GPL");
+MODULE_LICENSE("GPL v2");
 MODULE_AUTHOR("Rubberazer <rubberazer@outlook.com>");
 MODULE_DESCRIPTION("Jetson Orin CAR for user space");
