@@ -62,7 +62,7 @@ This module is basically a platfrom driver and makes use of the device tree, so 
   INITRD /boot/initrd
   APPEND ${cbootargs} root=PARTUUID=09a82924-13e4-40cf-9a0a-b077024483e0 rw rootwait rootfstype=ext4 mminit_loglevel=4 console=ttyTCU0,115200 console=ttyAMA0,115200 firmware_class.path=/etc/firmware fbcon=m>
 
-- Make sure there is a backup entry, copy and paste the primary label inmediately, call it backup, afterwards rename the FDT with the name of the future device tree blob, let's call it new in our example. It should look something like this:
+- Make sure there is a backup entry, copy and paste the primary label inmediately below, call it backup, afterwards rename the FDT with the name of the future device tree blob on the primary one, let's call it new in our example. It should look something like this:
 
   TIMEOUT 30
   DEFAULT primary
