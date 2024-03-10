@@ -29,16 +29,24 @@ This module is basically a platfrom driver and makes use of the device tree, so 
 
 - Preprocess the overlay file with some kernel headers:
 
+    ```
     cd ~/Jetclocks
     cpp -nostdinc -I ~/Linux_for_Tegra/source/public/hardware/nvidia/soc/t23x/kernel-include/ -undef -x assembler-with-cpp jetclocks.dtsi  jetclocks.dtsi.new
 
+    ```
+
 - Compile overlay:
 
+    ```
     dtc -I dts -O dtb ./jetclocks.dtsi.new -o ./jetclocks.dtbo
+
+    ```
 
 - Check current device tree in use:
 
+    ```
     sudo nano /boot/extlinux/extlinux.conf
+    ```
 
 - You should have something like:
 
@@ -77,10 +85,13 @@ This module is basically a platfrom driver and makes use of the device tree, so 
 	
 - Apply overlay blob (dtbo) to main dt blob
 
+    ```
     cd ~/Jetclocks
     sudo cp jetclocks.dtbo /boot/dtb
     cd /boot/dtb
     sudo fdtoverlay -i kernel_tegra234-p3767-0004-p3768-0000-a0.dtb -o new.dtb jetclocks.dtbo
+
+    ```
 
 - Make sure that everything is OK, if you corrupt your device tree and your backup label in extlinux.conf is not correct you will be in trouble.
 
