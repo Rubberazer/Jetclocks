@@ -95,3 +95,15 @@ This module is basically a platfrom driver and makes use of the device tree, so 
 
 - Make sure that everything is OK, if you corrupt your device tree and your backup label in extlinux.conf is not correct you will be in trouble.
 
+- Reboot, after reboot you can check wheter the overaly has been applied:
+
+    ```
+    ls /proc/device-tree/jetclocks/
+
+    ```
+    If everything went OK, you should see:
+
+    clock-names  clocks  compatible  name  status
+
+<h2 align="left">COMPILE THE MODULE:</h2>
+
