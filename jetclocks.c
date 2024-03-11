@@ -21,6 +21,9 @@
 #include <linux/device.h>
 #include <linux/fs.h>
 #include <linux/slab.h>
+#include <linux/uaccess.h>
+
+#include "jetclocks.h"
 
 struct jetclocks {
     struct cdev cdev;
@@ -34,103 +37,115 @@ static dev_t major_devt;
 static struct jetclocks *jetclocks_dev;
 static struct class *cls;
 
+static int clock_enable(const char *clock, struct jetclocks *dev);
+static int clock_disable(const char *clock, struct jetclocks *dev);
+static int is_clock_enabled(const char *clock, struct jetclocks *dev);
+
 int jetclocks_open(struct inode * inode, struct file * filp)
 {
+    try_module_get(THIS_MODULE);
     pr_info("Opening jetclocks chardev\n");
     return 0;
 }
 
 int jetclocks_release(struct inode * inode, struct file * filp)
 {
+    module_put(THIS_MODULE);
     pr_info("Closing jetclocks chardev\n");
     return 0;
 }
-/*
+
 static long jetclocks_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 {
+    char clock[20];
+    int ret = 0;
+    
     switch(cmd){
     case CLK_ENABLE:
-	clock_enable();
+	if(copy_from_user(clock, (char *) arg, sizeof(clock))) {
+	    pr_err("Jetclocks - Error getting clock name\n");
+	    return -EINVAL;
+	}
+	
+	ret = clock_enable(clock, jetclocks_dev);
+	if (ret)
+	    pr_info("Jetclocks - clock %s enabled\n", clock);
 	break;
     case CLK_DISABLE:
-	clock_disable();
+	if(copy_from_user(clock, (char *) arg, sizeof(clock))) {
+	    pr_err("Jetclocks - Error getting clock name\n");
+	    return -EINVAL;
+	}
+	
+	ret = clock_disable(clock, jetclocks_dev);
+	if (ret)
+	    pr_info("Jetclocks - clock %s enabled\n", clock);
 	break;
-    case CLK_IS_ENABLED:
-	clock_is_enable();
-	break;
+	/*case CLK_IS_ENABLED:
+	if(copy_from_user(clock, (char *) arg, sizeof(clock))) {
+	    pr_err("Jetclocks - Error getting clock name\n");
+	    return -1;
+	}
+	ret = clock_enable(clock, jetclocks_dev->dev);
+	if (ret)
+	    pr_info("Jetclocks - clock %s\ enabledn", clock);
+	    break; */
     default:
 	return -ENOTTY;
     }
-    return 0;
-} */
+    return ret;
+} 
 
 struct file_operations jetclocks_fops = {
     owner:          THIS_MODULE,
     open:           jetclocks_open,
     release:        jetclocks_release,
-    //unlocked_ioctl: jetclocks_ioctl,
+    unlocked_ioctl: jetclocks_ioctl,
 };
 
-static int is_clock_enabled(const char *clock, struct platform_device *pdev)
-{
-    struct jetclocks *jetclock_i;
-       
-    jetclock_i = platform_get_drvdata(pdev);
-    if (WARN_ON(!jetclock_i))
-	 return -ENODEV;
-    
-    jetclock_i->clk = devm_clk_get(&pdev->dev, clock);
-    if (IS_ERR(jetclock_i->clk))
-	return PTR_ERR(jetclock_i->clk);
+static int is_clock_enabled(const char *clock, struct jetclocks *dev)
+{   
+    dev->clk = clk_get(dev->dev, clock);
+    if (IS_ERR(dev->clk))
+	return PTR_ERR(dev->clk);
 
-    if (!jetclock_i->clk) {
+    if (!dev->clk) {
 	return 0;
     }
     
     return 1;
 }
 
-static int clock_enable(const char *clock, struct platform_device *pdev)
+static int clock_enable(const char *clock,  struct jetclocks *dev)
 {
-    struct jetclocks *jetclock_e;
     int ret;
-       
-    jetclock_e = platform_get_drvdata(pdev);
-    if (WARN_ON(!jetclock_e))
-	 return -ENODEV;
-    
-    jetclock_e->clk = devm_clk_get(&pdev->dev, clock);
-    if (IS_ERR(jetclock_e->clk))
-	return PTR_ERR(jetclock_e->clk);
+  
+    dev->clk = devm_clk_get(dev->dev, clock);
+    if (IS_ERR(dev->clk))
+	return PTR_ERR(dev->clk);
 
-    ret = clk_prepare(jetclock_e->clk);
+    ret = clk_prepare(dev->clk);
     if (ret) {
-	dev_err(&pdev->dev, "Clock prepare failed\n");
+	dev_err(dev->dev, "Clock prepare failed\n");
 	return ret;
     }
 
-    ret = clk_enable(jetclock_e->clk);
+    ret = clk_enable(dev->clk);
     if (ret) {
-	dev_err(&pdev->dev, "Clock enable failed\n");
+	dev_err(dev->dev, "Clock enable failed\n");
 	return ret;
     }
 
     return 0;
 }
 
-static int clock_disable(const char *clock, struct platform_device *pdev)
+static int clock_disable(const char *clock, struct jetclocks *dev)
 {
-    struct  jetclocks *jetclock_d;
+    dev->clk = devm_clk_get(dev->dev, clock);
+    if (IS_ERR(dev->clk))
+	return PTR_ERR(dev->clk);
 
-    jetclock_d = platform_get_drvdata(pdev);
-    if (WARN_ON(!jetclock_d))
-	 return -ENODEV;
-
-    jetclock_d->clk = devm_clk_get(&pdev->dev, clock);
-    if (IS_ERR(jetclock_d->clk))
-	return PTR_ERR(jetclock_d->clk);
-
-    clk_disable_unprepare(jetclock_d->clk);
+    clk_disable_unprepare(dev->clk);
 
     return 0;
 }
@@ -144,7 +159,8 @@ static int jetclocks_probe(struct platform_device *pdev)
     jetclocks_dev = devm_kzalloc(&pdev->dev, sizeof(*jetclocks_dev), GFP_KERNEL);
     if (!jetclocks_dev)
 	return -ENOMEM;
-    
+
+    //jetclocks_dev->dev = of_device_get_match_data(&pdev->dev);
     jetclocks_dev->dev = &pdev->dev;
     platform_set_drvdata(pdev, jetclocks_dev);
 
@@ -188,7 +204,7 @@ static int jetclocks_remove(struct platform_device *pdev)
     int ret = 0;
     
     pr_info("Removing jetclocks\n");
-    
+
     cdev_del(&jetclocks_dev->cdev);
     device_destroy(cls, major_devt);
     class_destroy(cls);
