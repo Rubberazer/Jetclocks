@@ -59,7 +59,7 @@ This module is basically a platfrom driver and makes use of the device tree, so 
 
   LINUX /boot/Image
   FDT /boot/dtb/kernel_tegra234-p3767-0004-p3768-0000-a0.dtb
-  INITRD /boot/initrd
+
   ...
 
 - Make sure there is a backup entry, copy and paste the primary label inmediately below, call it backup, afterwards rename the FDT with the name of the future device tree blob on the primary one, let's call it new in our example. It should look something like this:
@@ -73,14 +73,14 @@ This module is basically a platfrom driver and makes use of the device tree, so 
 
   LINUX /boot/Image
   FDT /boot/dtb/new.dtb
-  INITRD /boot/initrd
+
   ...
 
   LABEL backup
 
   LINUX /boot/Image
   FDT /boot/dtb/kernel_tegra234-p3767-0004-p3768-0000-a0.dtb
-  INITRD /boot/initrd
+
   ...
 	
 - Apply overlay blob (dtbo) to main dt blob
