@@ -18,10 +18,14 @@ int main() {
 	printf("Opening was not possible!\n");
 	return -1;
     }
-    
-    ioctl(dev, CLK_DISABLE, clock);
-    
-    printf("Opening was successfull!\n");
+
+    int x =0;
+    x =ioctl(dev, CLK_ENABLE, clock);
+    printf("enable was: %d\n", x);
+
+    x =ioctl(dev, CLK_DISABLE, clock);
+    printf("disable was: %d\n", x);
+
     close(dev);
     return 0;
 }

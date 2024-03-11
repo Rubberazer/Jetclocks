@@ -64,25 +64,25 @@ static long jetclocks_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
     case CLK_ENABLE:
 	if(copy_from_user(clock, (char *) arg, sizeof(clock))) {
 	    pr_err("Jetclocks - Error getting clock name\n");
-	    return -EINVAL;
+	    return -ENOTTY;
 	}
 	
 	ret = clock_enable(clock, jetclocks_dev);
-	if (ret)
+	if (!ret)
 	    pr_info("Jetclocks - clock %s enabled\n", clock);
 	break;
     case CLK_DISABLE:
 	if(copy_from_user(clock, (char *) arg, sizeof(clock))) {
 	    pr_err("Jetclocks - Error getting clock name\n");
-	    return -EINVAL;
+	    return -ENOTTY;
 	}
 	
 	ret = clock_disable(clock, jetclocks_dev);
-	if (ret)
-	    pr_info("Jetclocks - clock %s enabled\n", clock);
+	if (!ret)
+	    pr_info("Jetclocks - clock %s disabled\n", clock);
 	break;
 	/*case CLK_IS_ENABLED:
-	if(copy_from_user(clock, (char *) arg, sizeof(clock))) {
+	if(copy_to_user(clock, (char *) arg, sizeof(clock))) {
 	    pr_err("Jetclocks - Error getting clock name\n");
 	    return -1;
 	}
@@ -136,6 +136,8 @@ static int clock_enable(const char *clock,  struct jetclocks *dev)
 	return ret;
     }
 
+    devm_clk_put(dev->dev, dev->clk);
+    
     return 0;
 }
 
