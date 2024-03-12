@@ -1,6 +1,6 @@
 # Jetclocks
 Kernel module to control the Jetson Orin clocks.
-The aim of this kernel module is to provide applications in user space access to the Clocks and Resets in Jetson Orin machines through system calls - ioctls(). This effectively provides a friendly API to the Clock and Reset Controller (CAR), for Orins this is firmware running on the BPMP controller.
+The aim of this kernel module is to provide applications in user space access to the clocks in Jetson Orin machines through system calls - ioctls(). 
 
 This module is inspired by the NVIDIA MODS kernel driver by NVIDIA CORPORATION. For more information on the MODS kernel driver check the Linux for Tegra kernel sources.
 
@@ -95,7 +95,7 @@ This module is basically a platfrom driver and makes use of the device tree, so 
 
 - Make sure that everything is OK, if you corrupt your device tree and your backup label in extlinux.conf is not correct you will be in trouble.
 
-- Reboot, after reboot you can check wheter the overaly has been applied:
+- Reboot, after reboot you can check wheter the overlay has been applied:
 
     ```
     ls /proc/device-tree/jetclocks/

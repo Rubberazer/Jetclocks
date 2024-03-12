@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later
  * 
- * jetclocks.c
+ * jetclocks.c - jetclocks kernel module
  *
  * Inspired by the NVIDIA MODS kernel driver by NVIDIA CORPORATION. 
  * The jetclocks kernel module is a facility that provides a friendly API
- * for applications in user space to access the Clocks and Resets Controller 
- * (CAR) in Nvidia Jetson Orin machines.
+ * for applications in user space to manipulate the clocks in Nvidia
+ * Jetson Orin machines.
  *
  */
 

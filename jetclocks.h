@@ -1,5 +1,12 @@
-/*
- * jetclocks.h
+/* SPDX-License-Identifier: GPL-2.0-or-later
+ * 
+ * jetclocks.h - jetclocks kernel module header
+ *
+ * Inspired by the NVIDIA MODS kernel driver by NVIDIA CORPORATION. 
+ * The jetclocks kernel module is a facility that provides a friendly API
+ * for applications in user space to manipulate the clocks in Nvidia
+ * Jetson Orin machines.
+ *
  */
 
 #ifndef __JETCLOCKS_H__
