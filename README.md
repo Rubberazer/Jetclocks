@@ -13,7 +13,7 @@ This module is inspired by the NVIDIA MODS kernel driver by NVIDIA CORPORATION. 
 - Enable/disable any clock
 - Check whether a clock is enabled or disabled
 - Set clock rate on any clock
-- Get any clock's curretn rate
+- Get any clock's current rate
 
 <h2 align="left">DEVICE TREE:</h2>
 
@@ -104,8 +104,10 @@ DISCLAIMER - Manipulating the device tree blob might cause your system to behave
 
     ```
     If everything went OK, you should see:
-
+    ```
     clock-names  clocks  compatible  name  status
 
+    ```
+    
 <h2 align="left">COMPILE THE MODULE:</h2>
 
