@@ -9,7 +9,6 @@
  *
  */
 
-#include <dt-bindings/clock/tegra234-clk.h>
 #include <dt-bindings/clock/tegra234-clock.h>
 
 /dts-v1/;
