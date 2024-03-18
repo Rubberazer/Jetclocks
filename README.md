@@ -1,6 +1,6 @@
 # Jetclocks
 Kernel module to control the Jetson Orin clocks.
-The aim of this kernel module is to provide applications in user space access to the clocks in Jetson Orin machines through system calls - ioctls(). 
+The aim of this kernel module is to provide applications in user space access to the clocks in Jetson Orin machines through system calls - ioctls(). Basically is a wrapper of the standard Linux Kernel Common Clock Framework. 
 
 This module is inspired by the NVIDIA MODS kernel driver by NVIDIA CORPORATION. For more information on the MODS kernel driver check the Linux for Tegra kernel sources.
 
@@ -11,12 +11,14 @@ This module is inspired by the NVIDIA MODS kernel driver by NVIDIA CORPORATION. 
 <h2 align="left">FUNCTIONALITY:</h2>
 
 - Enable/disable any clock
-
+- Check whether a clock is enabled or disabled
 - Set clock rate on any clock
+- Get any clock's curretn rate
 
 <h2 align="left">DEVICE TREE:</h2>
 
-This module is basically a platfrom driver and makes use of the device tree, so the first step is to compile the device tree overlay and use it to patch the main device tree blob, there are several ways of going about this, the following one has been tested and it doesn't imply reflasing or recompiling the whole kernel.
+This module is basically a platfrom driver and makes use of the device tree, so the first step is to compile the device tree overlay and use it to patch the main device tree blob, there are several ways of going about this, the following one has been tested and it doesn't imply reflashing or recompiling the whole kernel.
+DISCLAIMER - Manipulating the device tree blob might cause your system to not start and behave in unexpected, undesirable ways, handle with care.
 
 - First of all, clone/download this module sources anywhere in your Orin, say to your home directory:
 
