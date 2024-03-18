@@ -18,7 +18,7 @@ This module is inspired by the NVIDIA MODS kernel driver by NVIDIA CORPORATION. 
 <h2 align="left">DEVICE TREE:</h2>
 
 This module is basically a platfrom driver and makes use of the device tree, so the first step is to compile the device tree overlay and use it to patch the main device tree blob, there are several ways of going about this, the following one has been tested and it doesn't imply reflashing or recompiling the whole kernel.
-DISCLAIMER - Manipulating the device tree blob might cause your system to not start and behave in unexpected, undesirable ways, handle with care.
+DISCLAIMER - Manipulating the device tree blob might cause your system to behave in unexpected, undesirable ways, handle with care.
 
 - First of all, clone/download this module sources anywhere in your Orin, say to your home directory:
 
