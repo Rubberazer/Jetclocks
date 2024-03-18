@@ -6,26 +6,34 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <string.h>
 #include <sys/ioctl.h>
 
 #include "jetclocks.h"
 
+struct jetclk clock = {0};
+
 int main() {
-    char *clock = "pwm2";
-    
+
     int dev = open("/dev/jetclocks", O_WRONLY);
     if(dev == -1) {
 	printf("Opening was not possible!\n");
 	return -1;
     }
 
-    int x =0;
-    x =ioctl(dev, CLK_ENABLE, clock);
-    printf("enable was: %d\n", x);
+    
+    /* Enabling clock "pwm1" */
+    
+    strncpy(clock.clk, "pwm1", sizeof(clock.clk));
+    ioctl(dev, CLK_ENABLE, &clock);
+    printf("Enabling clock %s: \n",clock.clk);
 
-    x =ioctl(dev, CLK_DISABLE, clock);
-    printf("disable was: %d\n", x);
+    /* Now checking whether the clok is enabled*/
 
+    strncpy(clock.clk, "pwm1", sizeof(clock.clk));
+    ioctl(dev, CLK_IS_ENABLED, &clock);
+    printf("clock %s status(0 disabled, 1 enabled): %d\n",clock.clk, clock.clk_enabled);
+ 
     close(dev);
     return 0;
 }

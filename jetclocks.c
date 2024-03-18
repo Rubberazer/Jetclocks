@@ -1,3 +1,4 @@
+
 /* SPDX-License-Identifier: GPL-2.0-or-later
  * 
  * jetclocks.c - jetclocks kernel module
@@ -12,6 +13,7 @@
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/clk.h>
+#include <linux/clk-provider.h>
 #include <linux/reset.h>
 #include <linux/err.h>
 #include <linux/of.h>
@@ -29,67 +31,118 @@ struct jetclocks {
     struct cdev cdev;
     struct device *dev;
     struct clk *clk;
-    struct reset_control *rst;
 };
 
-static unsigned int major;
-static dev_t major_devt;
-static struct jetclocks *jetclocks_dev;
+static unsigned major;
 static struct class *cls;
 
-static int clock_enable(const char *clock, struct jetclocks *dev);
-static int clock_disable(const char *clock, struct jetclocks *dev);
-static int is_clock_enabled(const char *clock, struct jetclocks *dev);
-
-int jetclocks_open(struct inode * inode, struct file * filp)
+static int is_clock_enabled(const char *clock, struct jetclocks *dev)
 {
+    int ret;
+    
+    dev->clk = devm_clk_get(dev->dev, clock);
+    if (IS_ERR(dev->clk)){
+	return PTR_ERR(dev->clk);
+    }
+    ret = __clk_is_enabled(dev->clk);
+
+    return ret;
+}
+
+static int clock_enable(const char *clock,  struct jetclocks *dev)
+{
+    int ret;
+  
+    dev->clk = devm_clk_get(dev->dev, clock);
+    if (IS_ERR(dev->clk))
+	return PTR_ERR(dev->clk);
+
+    ret = clk_prepare_enable(dev->clk);
+    if (ret) {
+	dev_err(dev->dev, "Clock prepare failed\n");
+	return ret;
+    }
+    
+    return 0;
+}
+
+static int clock_disable(const char *clock, struct jetclocks *dev)
+{
+    dev->clk = devm_clk_get(dev->dev, clock);
+    if (IS_ERR(dev->clk))
+	return PTR_ERR(dev->clk);
+    
+    clk_disable_unprepare(dev->clk);
+    
+    return 0;
+}
+
+static int jetclocks_open(struct inode * inode, struct file * filp)
+{
+    struct jetclocks *jetclocks_dev;
+
+    jetclocks_dev = container_of(inode->i_cdev, struct jetclocks, cdev);
+    filp->private_data = jetclocks_dev;
+
     try_module_get(THIS_MODULE);
     pr_info("Opening jetclocks chardev\n");
     return 0;
 }
 
-int jetclocks_release(struct inode * inode, struct file * filp)
+static int jetclocks_release(struct inode * inode, struct file * filp)
 {
+    filp->private_data = NULL;
+    
     module_put(THIS_MODULE);
     pr_info("Closing jetclocks chardev\n");
     return 0;
 }
 
-static long jetclocks_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
+static long jetclocks_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {
-    char clock[20];
+    struct jetclocks *jetclocks_dev = filp->private_data;
+    struct jetclk clock = {0};
     int ret = 0;
     
     switch(cmd){
     case CLK_ENABLE:
-	if(copy_from_user(clock, (char *) arg, sizeof(clock))) {
+	if(copy_from_user(&clock, (struct jetclk *) arg, sizeof(clock))) {
 	    pr_err("Jetclocks - Error getting clock name\n");
-	    return -ENOTTY;
+	    return -EFAULT;
 	}
 	
-	ret = clock_enable(clock, jetclocks_dev);
-	if (!ret)
-	    pr_info("Jetclocks - clock %s enabled\n", clock);
+	ret = clock_enable(clock.clk, jetclocks_dev);
+	if (ret == 0) {
+	    pr_info("Jetclocks - clock %s enabled\n", clock.clk);
+	    clock.clk_enabled = 1;
+	}
+	
 	break;
     case CLK_DISABLE:
-	if(copy_from_user(clock, (char *) arg, sizeof(clock))) {
+	if(copy_from_user(&clock, (struct jetclk *) arg, sizeof(clock))) {
 	    pr_err("Jetclocks - Error getting clock name\n");
-	    return -ENOTTY;
+	    return -EFAULT;
+	}
+       
+	ret = clock_disable(clock.clk, jetclocks_dev);
+	if (ret == 0) {
+	    pr_info("Jetclocks - clock %s disabled\n", clock.clk);
+	    clock.clk_enabled = 0;
 	}
 	
-	ret = clock_disable(clock, jetclocks_dev);
-	if (!ret)
-	    pr_info("Jetclocks - clock %s disabled\n", clock);
 	break;
-	/*case CLK_IS_ENABLED:
-	if(copy_to_user(clock, (char *) arg, sizeof(clock))) {
+    case CLK_IS_ENABLED:
+	if(copy_from_user(&clock, (struct jetclk *) arg, sizeof(clock))) {
 	    pr_err("Jetclocks - Error getting clock name\n");
-	    return -1;
+	    return -EFAULT;
 	}
-	ret = clock_enable(clock, jetclocks_dev->dev);
-	if (ret)
-	    pr_info("Jetclocks - clock %s\ enabledn", clock);
-	    break; */
+
+	clock.clk_enabled = is_clock_enabled(clock.clk, jetclocks_dev);
+	if(copy_to_user((struct jetclk *) arg, &clock, sizeof(clock))) { 
+	    pr_err("Jetclocks - Error sending clock %s status\n", clock.clk);
+	    return -EFAULT;
+	}
+	break;
     default:
 	return -ENOTTY;
     }
@@ -103,57 +156,10 @@ struct file_operations jetclocks_fops = {
     unlocked_ioctl: jetclocks_ioctl,
 };
 
-static int is_clock_enabled(const char *clock, struct jetclocks *dev)
-{   
-    dev->clk = clk_get(dev->dev, clock);
-    if (IS_ERR(dev->clk))
-	return PTR_ERR(dev->clk);
-
-    if (!dev->clk) {
-	return 0;
-    }
-    
-    return 1;
-}
-
-static int clock_enable(const char *clock,  struct jetclocks *dev)
-{
-    int ret;
-  
-    dev->clk = devm_clk_get(dev->dev, clock);
-    if (IS_ERR(dev->clk))
-	return PTR_ERR(dev->clk);
-
-    ret = clk_prepare(dev->clk);
-    if (ret) {
-	dev_err(dev->dev, "Clock prepare failed\n");
-	return ret;
-    }
-
-    ret = clk_enable(dev->clk);
-    if (ret) {
-	dev_err(dev->dev, "Clock enable failed\n");
-	return ret;
-    }
-
-    devm_clk_put(dev->dev, dev->clk);
-    
-    return 0;
-}
-
-static int clock_disable(const char *clock, struct jetclocks *dev)
-{
-    dev->clk = devm_clk_get(dev->dev, clock);
-    if (IS_ERR(dev->clk))
-	return PTR_ERR(dev->clk);
-
-    clk_disable_unprepare(dev->clk);
-
-    return 0;
-}
-
 static int jetclocks_probe(struct platform_device *pdev)
 {
+    struct jetclocks *jetclocks_dev;
+    dev_t major_devt;
     int ret = 0;
     
     pr_info("Probing jetclocks\n");
@@ -162,10 +168,9 @@ static int jetclocks_probe(struct platform_device *pdev)
     if (!jetclocks_dev)
 	return -ENOMEM;
 
-    //jetclocks_dev->dev = of_device_get_match_data(&pdev->dev);
     jetclocks_dev->dev = &pdev->dev;
     platform_set_drvdata(pdev, jetclocks_dev);
-
+    
     /* Character device */
 
     if (alloc_chrdev_region(&major_devt, 0, 1, "jetclocks") < 0) {
@@ -175,14 +180,14 @@ static int jetclocks_probe(struct platform_device *pdev)
 
     major = MAJOR(major_devt);
     
-    if ((cls = class_create(THIS_MODULE, "jetclockclass")) == NULL) {
+    if ((cls = class_create(THIS_MODULE, "jetclocks")) == NULL) {
 	pr_err("Device class can not be created!\n");
 	class_destroy(cls);
 	return -EINVAL;
     } 
     
     if (device_create(cls, NULL, major_devt, NULL, "jetclocks") == NULL) {
-	printk("Can not create device file!\n");
+	printk("Cannot create device file!\n");
 	unregister_chrdev_region(major_devt, 1);
 	return -ENODEV;
     }
@@ -194,19 +199,22 @@ static int jetclocks_probe(struct platform_device *pdev)
 	device_destroy(cls, major_devt);
 	return -ENODEV;
     }
-        
+    
     pr_info("jetclocks module loaded\n");
-   
+
     return ret;
 }
 
 static int jetclocks_remove(struct platform_device *pdev)
 {
+    struct jetclocks *jetclocks_dev;
     dev_t major_devt = MKDEV(major, 0);
     int ret = 0;
     
     pr_info("Removing jetclocks\n");
-
+    
+    jetclocks_dev = platform_get_drvdata(pdev);
+    
     cdev_del(&jetclocks_dev->cdev);
     device_destroy(cls, major_devt);
     class_destroy(cls);
@@ -237,4 +245,4 @@ module_platform_driver(jetclocks_driver);
 
 MODULE_LICENSE("GPL v2");
 MODULE_AUTHOR("Rubberazer <rubberazer@outlook.com>");
-MODULE_DESCRIPTION("Jetson Orin CAR for user space");
+MODULE_DESCRIPTION("Jetson Orin clocks from user space");
