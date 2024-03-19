@@ -1,5 +1,5 @@
 
-/* SPDX-License-Identifier: GPL-2.0-or-later
+/* SPDX-License-Identifier: GPL-2.0
  * 
  * jetclocks.c - jetclocks kernel module
  *
@@ -30,11 +30,11 @@
 struct jetclocks {
     struct cdev cdev;
     struct device *dev;
+    struct class *cls;
     struct clk *clk;
 };
 
 static unsigned major;
-static struct class *cls;
 
 static int is_clock_enabled(const char *clock, struct jetclocks *dev)
 {
@@ -85,7 +85,7 @@ static int jetclocks_open(struct inode * inode, struct file * filp)
     filp->private_data = jetclocks_dev;
 
     try_module_get(THIS_MODULE);
-    pr_info("Opening jetclocks chardev\n");
+    pr_info("Opening jetclocks\n");
     return 0;
 }
 
@@ -94,7 +94,7 @@ static int jetclocks_release(struct inode * inode, struct file * filp)
     filp->private_data = NULL;
     
     module_put(THIS_MODULE);
-    pr_info("Closing jetclocks chardev\n");
+    pr_info("Closing jetclocks\n");
     return 0;
 }
 
@@ -123,7 +123,7 @@ static long jetclocks_ioctl(struct file *filp, unsigned int cmd, unsigned long a
 	    pr_err("Jetclocks - Error getting clock name\n");
 	    return -EFAULT;
 	}
-       
+
 	ret = clock_disable(clock.clk, jetclocks_dev);
 	if (ret == 0) {
 	    pr_info("Jetclocks - clock %s disabled\n", clock.clk);
@@ -160,6 +160,7 @@ static int jetclocks_probe(struct platform_device *pdev)
 {
     struct jetclocks *jetclocks_dev;
     dev_t major_devt;
+    struct device *sysdevice;
     int ret = 0;
     
     pr_info("Probing jetclocks\n");
@@ -173,36 +174,43 @@ static int jetclocks_probe(struct platform_device *pdev)
     
     /* Character device */
 
-    if (alloc_chrdev_region(&major_devt, 0, 1, "jetclocks") < 0) {
-	pr_err("Device number could not be allocated!\n");
+    ret = alloc_chrdev_region(&major_devt, 0, 1, "jetclocks");    
+    if (ret < 0) {
+	pr_err("Device number could not be allocated\n");
 	return -EINVAL;
     }
 
     major = MAJOR(major_devt);
-    
-    if ((cls = class_create(THIS_MODULE, "jetclocks")) == NULL) {
-	pr_err("Device class can not be created!\n");
-	class_destroy(cls);
-	return -EINVAL;
-    } 
-    
-    if (device_create(cls, NULL, major_devt, NULL, "jetclocks") == NULL) {
-	printk("Cannot create device file!\n");
+
+    jetclocks_dev->cls = class_create(THIS_MODULE, "jetclocks");
+    if (IS_ERR(jetclocks_dev->cls)) {
+	pr_err("Device class can not be created\n");
 	unregister_chrdev_region(major_devt, 1);
-	return -ENODEV;
+	return PTR_ERR(jetclocks_dev->cls);
+    }
+
+    sysdevice = device_create(jetclocks_dev->cls, NULL, major_devt, NULL, "jetclocks");
+    
+    if (IS_ERR(sysdevice)) {
+	pr_err("Cannot create device file\n");
+	class_destroy(jetclocks_dev->cls);	
+	unregister_chrdev_region(major_devt, 1);
+	return PTR_ERR(sysdevice);
     }
        
     cdev_init(&jetclocks_dev->cdev, &jetclocks_fops);
     
-    if (cdev_add(&jetclocks_dev->cdev, major_devt, 1) == -1) {
-	printk("Registering of device to kernel failed!\n");
-	device_destroy(cls, major_devt);
+    if (cdev_add(&jetclocks_dev->cdev, major_devt, 1) < 0) {
+	pr_err("Registering of device to kernel failed\n");
+	device_destroy(jetclocks_dev->cls, major_devt);
+	class_destroy(jetclocks_dev->cls);
+	unregister_chrdev_region(major_devt, 1);
 	return -ENODEV;
     }
     
     pr_info("jetclocks module loaded\n");
 
-    return ret;
+    return 0;
 }
 
 static int jetclocks_remove(struct platform_device *pdev)
@@ -216,8 +224,8 @@ static int jetclocks_remove(struct platform_device *pdev)
     jetclocks_dev = platform_get_drvdata(pdev);
     
     cdev_del(&jetclocks_dev->cdev);
-    device_destroy(cls, major_devt);
-    class_destroy(cls);
+    device_destroy(jetclocks_dev->cls, major_devt);
+    class_destroy(jetclocks_dev->cls);
     unregister_chrdev_region(major_devt, 1);
     
     pr_info("jetclocks module unloaded\n");

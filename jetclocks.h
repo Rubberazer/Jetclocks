@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: GPL-2.0-or-later
+/* SPDX-License-Identifier: GPL-2.0
  * 
  * jetclocks.h - jetclocks kernel module header
  *

@@ -17,20 +17,19 @@ int main() {
 
     int dev = open("/dev/jetclocks", O_WRONLY);
     if(dev == -1) {
-	printf("Opening was not possible!\n");
+	printf("Opening /dev/jetclocks not possible\n");
 	return -1;
     }
 
+    /* Enabling clock "pwm5" */
     
-    /* Enabling clock "pwm1" */
-    
-    strncpy(clock.clk, "pwm1", sizeof(clock.clk));
-    ioctl(dev, CLK_ENABLE, &clock);
+    strncpy(clock.clk, "pwm7", sizeof(clock.clk));
+    ioctl(dev, CLK_DISABLE, &clock);
     printf("Enabling clock %s: \n",clock.clk);
 
     /* Now checking whether the clok is enabled*/
 
-    strncpy(clock.clk, "pwm1", sizeof(clock.clk));
+    strncpy(clock.clk, "pwm7", sizeof(clock.clk));
     ioctl(dev, CLK_IS_ENABLED, &clock);
     printf("clock %s status(0 disabled, 1 enabled): %d\n",clock.clk, clock.clk_enabled);
  
