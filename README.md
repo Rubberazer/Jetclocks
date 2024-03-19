@@ -144,13 +144,13 @@ To remove the module:
     
 <h2 align="left">USE THE MODULE:</h2>
 
-This module is all about using it from user space, there are 3 basic operations that you can perform from your user space applications that interact with this module. You are going to need a list with valid clock names, you can find this at [clock_names.md](https://github.com/Rubberazer/Jetclocks/blob/main/clock_names.md). There is also a sample application here [jetclocks_user](https://github.com/Rubberazer/Jetclocks/blob/main/jetclocks_user.c), to verify whether a clock is enabled/disabled you can type the following from the shell, for instance to cehck the status of clock spi1:
+This module is all about using it from user space, there are 3 basic operations that you can perform from your user space applications that interact with this module. You are going to need a list with valid clock names, you can find this at [clock_names.md](https://github.com/Rubberazer/Jetclocks/blob/main/clock_names.md). There is also a sample application here [jetclocks_user](https://github.com/Rubberazer/Jetclocks/blob/main/jetclocks_user.c), to verify whether a clock is enabled/disabled you can type the following from the shell, for instance to check the status of clock spi1:
 
 
      sudo cat /sys/kernel/debug/bpmp/debug/clk/clk_tree | grep spi1
 
 
-LIMITATIONS: you are not going to be able to enable or disable clocks already enabled (in use by some other peripheral), this is due to the fact that is not going ot be able to get the clock handler. So basically, if some clock is already disabled you will e bale to enable and disable it from that point, but not if it is already in use.
+LIMITATIONS: you are not going to be able to enable or disable clocks already enabled (in use by some other peripheral), this is due to the fact that the module is not going to be able to get the clock handler. So basically, if some clock is already disabled you should be able to enable and disable it from that point, but not if it is already in use by something else.
 
 Check whether a clock is enabled:
 ```
