@@ -111,38 +111,37 @@ DISCLAIMER - Manipulating the device tree blob might cause your system to behave
 
 To compile the module just:
 
-    ```
-    make
 
-    ```
+   make
+
+
 <h2 align="left">DEPLOYMENT:</h2>
 
 To insert the module:
 
-    ```
+
     sudo insmod jetclocks.ko
 
-    ```
 
 If you type a:
 
-    ```
+    
     sudo dmesg
 
-    ```
+   
 You should see something like below, you can ignore the "tainting kernel" message, this just means that is not signed (out of tree module), it doesn't have any practical implications:
 
-    ```
+    
     Probing jetclocks
     jetclocks module loaded
 
-    ```
+    
 To remove the module:
 
-    ```
+   
     sudo rmmod jetclocks
 
-    ```
+    
 <h2 align="left">USE THE MODULE:</h2>
 
 This module is all about using it from user space, there are 3 basic operations that you can perform from your user space applications that interact with this module. You are going to need a list with valid clock names, you can find this at [clock_names.md](https://github.com/Rubberazer/Jetclocks/blob/main/clock_names.md).
