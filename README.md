@@ -112,7 +112,7 @@ DISCLAIMER - Manipulating the device tree blob might cause your system to behave
 To compile the module just:
 
 
-   make
+    make
 
 
 <h2 align="left">DEPLOYMENT:</h2>
