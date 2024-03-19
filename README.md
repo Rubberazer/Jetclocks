@@ -6,7 +6,7 @@ This module is inspired by the NVIDIA MODS kernel driver by NVIDIA CORPORATION. 
 
 <h2 align="left">SUPPORTED MODELS:</h2>
 
-- Jetson Orin family: Orin, Nano, NX and AGX
+- Jetson Orin family: Orin Nano, NX and AGX
 
 <h2 align="left">FUNCTIONALITY:</h2>
 
