@@ -1,6 +1,6 @@
 # Jetclocks
 Simple kernel module to control the Jetson Orin clocks.
-The aim of this kernel module is to provide applications in user space access to the clocks in Jetson Orin machines through system calls - ioctls(). Basically is a wrapper of the standard Linux Kernel Common Clock Framework. 
+The aim of this kernel module is to provide applications in user space access to the clocks in Jetson Orin machines through system calls - ioctls(). Basically is a wrapper of the standard Linux Kernel Common Clock Framework.
 
 This module is inspired by the NVIDIA MODS kernel driver by NVIDIA CORPORATION. For more information on the MODS kernel driver check the Linux for Tegra kernel sources.
 
