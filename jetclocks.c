@@ -70,8 +70,9 @@ static int clock_disable(const char *clock, struct jetclocks *dev)
     dev->clk = devm_clk_get(dev->dev, clock);
     if (IS_ERR(dev->clk))
 	return PTR_ERR(dev->clk);
-    
-    clk_disable_unprepare(dev->clk);
+
+    if(__clk_is_enabled(dev->clk))
+	clk_disable_unprepare(dev->clk);
     
     return 0;
 }
