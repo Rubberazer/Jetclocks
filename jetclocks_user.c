@@ -24,7 +24,7 @@ int main() {
     /* Enabling clock "spi1" */
     
     strncpy(clock.clk, "spi1", sizeof(clock.clk));
-    ioctl(dev, CLK_ENABLE, &clock);
+    ioctl(dev, CLK_DISABLE, &clock);
     printf("Enabling clock %s: \n",clock.clk);
 
     /* Now checking whether the clok is enabled*/
