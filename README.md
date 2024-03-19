@@ -12,8 +12,6 @@ This module is inspired by the NVIDIA MODS kernel driver by NVIDIA CORPORATION. 
 
 - Enable/disable any clock
 - Check whether a clock is enabled or disabled
-- Set clock rate on any clock
-- Get any clock's current rate
 
 <h2 align="left">DEVICE TREE:</h2>
 
@@ -111,3 +109,138 @@ DISCLAIMER - Manipulating the device tree blob might cause your system to behave
     
 <h2 align="left">COMPILE THE MODULE:</h2>
 
+To compile the module just:
+
+    ```
+    make
+
+    ```
+<h2 align="left">DEPLOYMENT:</h2>
+
+To insert the module:
+
+    ```
+    sudo insmod jetclocks.ko
+
+    ```
+
+If you type a:
+
+    ```
+    sudo dmesg
+
+    ```
+You should see something like below, you can ignore the "tainting kernel" message, this just means that is not signed (out of tree module), it doesn't have any practical implications:
+
+    ```
+    Probing jetclocks
+    jetclocks module loaded
+
+    ```
+To remove the module:
+
+    ```
+    sudo rmmod jetclocks
+
+    ```
+<h2 align="left">USE THE MODULE:</h2>
+
+This module is all about using it from user space, there are 3 basic operations that you can perform from your user space applications that interact with this module. You are going to need a list with valid clock names, you can find this at [clock_names.md](https://github.com/Rubberazer/Jetclocks/blob/main/clock_names.md).
+LIMITATIONS: you are not going to be able to enable or disable clocks already enabled (in use by some other peripheral), this is due to the fact that is not going ot be able to get the clock handler. So basically, if some clock is already disabled you will e bale to enable and disable it from that point, but not if it is already in use.
+
+Check whether a clock is enabled:
+```
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <string.h>
+#include <sys/ioctl.h>
+
+#include "jetclocks.h"
+
+struct jetclk clock = {0};
+
+int main() {
+
+    int dev = open("/dev/jetclocks", O_WRONLY);
+    if(dev == -1) {
+	printf("Opening /dev/jetclocks not possible\n");
+	return -1;
+    }
+
+    /* Now checking whether the clok is enabled*/
+
+    strncpy(clock.clk, "spi1", sizeof(clock.clk));
+    ioctl(dev, CLK_IS_ENABLED, &clock);
+    printf("clock %s status(0 disabled, 1 enabled): %d\n",clock.clk, clock.clk_enabled);
+ 
+    close(dev);
+    return 0;
+}
+```
+Enable clock:
+
+```
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <string.h>
+#include <sys/ioctl.h>
+
+#include "jetclocks.h"
+
+struct jetclk clock = {0};
+
+int main() {
+
+    int dev = open("/dev/jetclocks", O_WRONLY);
+    if(dev == -1) {
+	printf("Opening /dev/jetclocks not possible\n");
+	return -1;
+    }
+
+    /* Enabling clock "spi1" */
+    
+    strncpy(clock.clk, "spi1", sizeof(clock.clk));
+    ioctl(dev, CLK_ENABLE, &clock);
+    printf("Enabling clock %s: \n",clock.clk);
+
+    close(dev);
+    return 0;
+}
+```
+
+Disable clock:
+
+```
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <string.h>
+#include <sys/ioctl.h>
+
+#include "jetclocks.h"
+
+struct jetclk clock = {0};
+
+int main() {
+
+    int dev = open("/dev/jetclocks", O_WRONLY);
+    if(dev == -1) {
+	printf("Opening /dev/jetclocks not possible\n");
+	return -1;
+    }
+
+    /* Disabling clock "spi1" */
+    
+    strncpy(clock.clk, "spi1", sizeof(clock.clk));
+    ioctl(dev, CLK_DISABLE, &clock);
+    printf("Disabling clock %s: \n",clock.clk);
+
+    close(dev);
+    return 0;
+}
+```
