@@ -21,15 +21,15 @@ int main() {
 	return -1;
     }
 
-    /* Enabling clock "pwm5" */
+    /* Enabling clock "spi1" */
     
-    strncpy(clock.clk, "pwm7", sizeof(clock.clk));
-    ioctl(dev, CLK_DISABLE, &clock);
+    strncpy(clock.clk, "spi1", sizeof(clock.clk));
+    ioctl(dev, CLK_ENABLE, &clock);
     printf("Enabling clock %s: \n",clock.clk);
 
     /* Now checking whether the clok is enabled*/
 
-    strncpy(clock.clk, "pwm7", sizeof(clock.clk));
+    strncpy(clock.clk, "spi1", sizeof(clock.clk));
     ioctl(dev, CLK_IS_ENABLED, &clock);
     printf("clock %s status(0 disabled, 1 enabled): %d\n",clock.clk, clock.clk_enabled);
  
