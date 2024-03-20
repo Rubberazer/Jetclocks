@@ -12,6 +12,8 @@ This module is based on the NVIDIA MODS kernel driver by NVIDIA CORPORATION. For
 
 - Enable/disable any clock
 - Check whether a clock is enabled or disabled
+- Set clock rate in Hz
+- Get current clock rate in Hz
 
 <h2 align="left">DEVICE TREE:</h2>
 
@@ -247,4 +249,44 @@ int main() {
     close(dev);
     return 0;
 }
+```
+Set/Get clock rate:
+
+```
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <string.h>
+#include <sys/ioctl.h>
+
+#include "jetclocks.h"
+
+struct jetclk clock = {0};
+
+int main() {
+
+    int dev = open("/dev/jetclocks", O_WRONLY);
+    if(dev == -1) {
+	printf("Opening /dev/jetclocks not possible\n");
+	return -1;
+    }
+
+    /* Setting up rate to clock "spi1" */
+    
+    strncpy(clock.clk, "spi1", sizeof(clock.clk));
+    clock.clk_set_rate = 40800000; //Default is 81600000
+    ioctl(dev, CLK_SET_RATE, &clock);
+    printf("Setting rate: %lu on clock %s: \n",clock.clk_set_rate, clock.clk);
+
+    /* Checking current rate on clock spi1 */
+
+    strncpy(clock.clk, "spi1", sizeof(clock.clk));
+    ioctl(dev, CLK_GET_RATE, &clock);
+    printf("Rate on clock %s is %lu\n",clock.clk, clock.clk_rate);
+ 
+    close(dev);
+    return 0;
+}
+
 ```
