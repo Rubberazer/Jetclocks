@@ -277,12 +277,12 @@ int main() {
     
     strncpy(clock.clk, "spi1", sizeof(clock.clk));
     clock.clk_set_rate = 40800000; //Default is 81600000
+
     ioctl(dev, CLK_SET_RATE, &clock);
     printf("Setting rate: %lu on clock %s: \n",clock.clk_set_rate, clock.clk);
 
     /* Checking current rate on clock spi1 */
 
-    strncpy(clock.clk, "spi1", sizeof(clock.clk));
     ioctl(dev, CLK_GET_RATE, &clock);
     printf("Rate on clock %s is %lu\n",clock.clk, clock.clk_rate);
  
