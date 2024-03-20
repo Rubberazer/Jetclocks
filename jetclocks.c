@@ -58,7 +58,7 @@ static int clock_enable(const char *clock,  struct jetclocks *dev)
 
     ret = clk_prepare_enable(dev->clk);
     if (ret) {
-	dev_err(dev->dev, "Clock prepare failed\n");
+	dev_err(dev->dev, "Clock: %s prepare/enable failed\n", clock);
 	return ret;
     }
     
@@ -75,6 +75,36 @@ static int clock_disable(const char *clock, struct jetclocks *dev)
 	clk_disable_unprepare(dev->clk);
     
     return 0;
+}
+
+static int clock_set_rate(const char *clock,  struct jetclocks *dev, unsigned long rate)
+{
+    int ret;
+  
+    dev->clk = devm_clk_get(dev->dev, clock);
+    if (IS_ERR(dev->clk))
+	return PTR_ERR(dev->clk);
+
+    ret = clk_set_rate(dev->clk, rate);
+    if (ret) {
+	dev_err(dev->dev, "Clock: %s set rate failed\n", clock);
+	return -EINVAL;
+    }
+    
+    return 0;
+}
+
+static unsigned long clock_get_rate(const char *clock,  struct jetclocks *dev)
+{
+    unsigned long ret;
+  
+    dev->clk = devm_clk_get(dev->dev, clock);
+    if (IS_ERR(dev->clk))
+	return PTR_ERR(dev->clk);
+
+    ret = clk_get_rate(dev->clk);
+    
+    return ret;
 }
 
 static int jetclocks_open(struct inode * inode, struct file * filp)
@@ -112,9 +142,8 @@ static long jetclocks_ioctl(struct file *filp, unsigned int cmd, unsigned long a
 	}
 	
 	ret = clock_enable(clock.clk, jetclocks_dev);
-	if (ret == 0) {
+	if (!(ret)) {
 	    pr_info("Jetclocks - clock %s enabled\n", clock.clk);
-	    clock.clk_enabled = 1;
 	}
 	
 	break;
@@ -125,11 +154,9 @@ static long jetclocks_ioctl(struct file *filp, unsigned int cmd, unsigned long a
 	}
 
 	ret = clock_disable(clock.clk, jetclocks_dev);
-	if (ret == 0) {
+	if (!(ret)) {
 	    pr_info("Jetclocks - clock %s disabled\n", clock.clk);
-	    clock.clk_enabled = 0;
 	}
-	
 	break;
     case CLK_IS_ENABLED:
 	if(copy_from_user(&clock, (struct jetclk *) arg, sizeof(clock))) {
@@ -143,6 +170,29 @@ static long jetclocks_ioctl(struct file *filp, unsigned int cmd, unsigned long a
 	    return -EFAULT;
 	}
 	break;
+    case CLK_SET_RATE:
+	if(copy_from_user(&clock, (struct jetclk *) arg, sizeof(clock))) {
+	    pr_err("Jetclocks - Error getting clock name\n");
+	    return -EFAULT;
+	}
+	
+	ret = clock_set_rate(clock.clk, jetclocks_dev, clock.clk_set_rate);
+	if (!(ret)) {
+	    pr_info("Jetclocks - clock %s rate set\n", clock.clk);
+	}
+	break;
+    case CLK_GET_RATE:
+	if(copy_from_user(&clock, (struct jetclk *) arg, sizeof(clock))) {
+	    pr_err("Jetclocks - Error getting clock name\n");
+	    return -EFAULT;
+	}
+	
+	clock.clk_rate = clock_get_rate(clock.clk, jetclocks_dev);
+	if(copy_to_user((struct jetclk *) arg, &clock, sizeof(clock))) { 
+	    pr_err("Jetclocks - Error sending clock %s rate\n", clock.clk);
+	    return -EFAULT;
+	}
+	break;
     default:
 	return -ENOTTY;
     }
@@ -150,10 +200,10 @@ static long jetclocks_ioctl(struct file *filp, unsigned int cmd, unsigned long a
 } 
 
 struct file_operations jetclocks_fops = {
-    owner:          THIS_MODULE,
-    open:           jetclocks_open,
-    release:        jetclocks_release,
-    unlocked_ioctl: jetclocks_ioctl,
+owner:          THIS_MODULE,
+open:           jetclocks_open,
+release:        jetclocks_release,
+unlocked_ioctl: jetclocks_ioctl,
 };
 
 static int jetclocks_probe(struct platform_device *pdev)
@@ -254,3 +304,4 @@ module_platform_driver(jetclocks_driver);
 MODULE_LICENSE("GPL v2");
 MODULE_AUTHOR("Rubberazer <rubberazer@outlook.com>");
 MODULE_DESCRIPTION("Jetson Orin clocks from user space");
+
