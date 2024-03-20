@@ -176,7 +176,7 @@ int main() {
 	return -1;
     }
 
-    /* Now checking whether the clok is enabled*/
+    /* Checking whether the "spi1" clok is enabled*/
 
     strncpy(clock.clk, "spi1", sizeof(clock.clk));
     ioctl(dev, CLK_IS_ENABLED, &clock);
@@ -281,7 +281,7 @@ int main() {
     ioctl(dev, CLK_SET_RATE, &clock);
     printf("Setting rate: %lu on clock %s: \n",clock.clk_set_rate, clock.clk);
 
-    /* Checking current rate on clock spi1 */
+    /* Checking current rate on clock "spi1" */
 
     ioctl(dev, CLK_GET_RATE, &clock);
     printf("Rate on clock %s is %lu\n",clock.clk, clock.clk_rate);
