@@ -18,7 +18,7 @@ This module is based on the NVIDIA MODS kernel driver by NVIDIA CORPORATION. For
 <h2 align="left">DEVICE TREE:</h2>
 
 This module is basically a platfrom driver and makes use of the device tree, so the first step is to compile the device tree overlay and use it to patch the main device tree blob, there are several ways of going about this, the following one has been tested and it doesn't imply reflashing or recompiling the whole kernel.
-DISCLAIMER - Manipulating the device tree blob might cause your system to behave in unexpected, undesirable ways, handle with care.
+**DISCLAIMER** - Manipulating the device tree blob might cause your system to behave in unexpected, undesirable ways, handle with care.
 
 - First of all, clone/download this module sources anywhere in your Orin, say to your home directory:
 
@@ -146,15 +146,16 @@ To remove the module:
     
 <h2 align="left">USE THE MODULE:</h2>
 
-This module is all about using it from user space, there are 3 basic operations that you can perform from your user space applications that interact with this module. You are going to need a list with valid clock names, you can find this at [clock_names.md](https://github.com/Rubberazer/Jetclocks/blob/main/clock_names.md). There is also a sample application here [jetclocks_user](https://github.com/Rubberazer/Jetclocks/blob/main/jetclocks_user.c), to verify whether a clock is enabled/disabled you can type the following from the shell, for instance to check the status of clock spi1:
+This module is all about using it from user space, there are 3 basic operations that you can perform from your user space applications that interact with this module. You are going to need a list with valid clock names, you can find this at [clock_names.md](https://github.com/Rubberazer/Jetclocks/blob/main/clock_names.md). There is also a sample application here [jetclocks_user](https://github.com/Rubberazer/Jetclocks/blob/main/jetclocks_user.c), to verify whether a clock is enabled/disabled, clock rate and other parameters, you can type the following from the shell, for instance to check the status of clock spi1:
 
 
      sudo cat /sys/kernel/debug/bpmp/debug/clk/clk_tree | grep spi1
 
 
-LIMITATIONS: you are not going to be able to enable or disable clocks already enabled (in use by some other peripheral), this is due to the fact that the module is not going to be able to get the clock handler. So basically, if some clock is already disabled you should be able to enable and disable it from that point, but not if it is already in use by something else.
+**LIMITATIONS**: you are not going to be able to enable or disable clocks already enabled (in use by some other peripheral), this is due to the fact that the module is not going to be able to get the clock handler. So basically, if some clock is already disabled you should be able to enable and disable it from that point, but not if it is already in use by something else.
 
-Check whether a clock is enabled:
+**Check whether a clock is enabled:**
+
 ```
 #include <stdio.h>
 #include <stdlib.h>
@@ -185,7 +186,7 @@ int main() {
     return 0;
 }
 ```
-Enable clock:
+**Enable clock:**
 
 ```
 #include <stdio.h>
@@ -218,7 +219,7 @@ int main() {
 }
 ```
 
-Disable clock:
+**Disable clock:**
 
 ```
 #include <stdio.h>
@@ -250,7 +251,7 @@ int main() {
     return 0;
 }
 ```
-Set/Get clock rate:
+**Set/Get clock rate:**
 
 ```
 #include <stdio.h>
