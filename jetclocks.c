@@ -116,6 +116,7 @@ static int jetclocks_open(struct inode * inode, struct file * filp)
 
     try_module_get(THIS_MODULE);
     pr_info("Opening jetclocks\n");
+
     return 0;
 }
 
@@ -125,6 +126,7 @@ static int jetclocks_release(struct inode * inode, struct file * filp)
     
     module_put(THIS_MODULE);
     pr_info("Closing jetclocks\n");
+
     return 0;
 }
 
