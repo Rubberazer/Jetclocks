@@ -171,7 +171,7 @@ struct jetclk clock = {0};
 int main() {
 
     int dev = open("/dev/jetclocks", O_WRONLY);
-    if(dev == -1) {
+    if(dev < 0) {
 	printf("Opening /dev/jetclocks not possible\n");
 	return -1;
     }
@@ -203,7 +203,7 @@ struct jetclk clock = {0};
 int main() {
 
     int dev = open("/dev/jetclocks", O_WRONLY);
-    if(dev == -1) {
+    if(dev < 0) {
 	printf("Opening /dev/jetclocks not possible\n");
 	return -1;
     }
@@ -236,7 +236,7 @@ struct jetclk clock = {0};
 int main() {
 
     int dev = open("/dev/jetclocks", O_WRONLY);
-    if(dev == -1) {
+    if(dev < 0) {
 	printf("Opening /dev/jetclocks not possible\n");
 	return -1;
     }
@@ -268,7 +268,7 @@ struct jetclk clock = {0};
 int main() {
 
     int dev = open("/dev/jetclocks", O_WRONLY);
-    if(dev == -1) {
+    if(dev < 0) {
 	printf("Opening /dev/jetclocks not possible\n");
 	return -1;
     }
