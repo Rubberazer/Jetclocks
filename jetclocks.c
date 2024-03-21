@@ -115,7 +115,6 @@ static int jetclocks_open(struct inode * inode, struct file * filp)
     filp->private_data = jetclocks_dev;
 
     try_module_get(THIS_MODULE);
-    pr_info("Opening jetclocks\n");
 
     return 0;
 }
@@ -125,7 +124,6 @@ static int jetclocks_release(struct inode * inode, struct file * filp)
     filp->private_data = NULL;
     
     module_put(THIS_MODULE);
-    pr_info("Closing jetclocks\n");
 
     return 0;
 }
