@@ -166,9 +166,9 @@ This module is all about using it from user space, there are 3 basic operations 
 
 #include "jetclocks.h"
 
-struct jetclk clock = {0};
-
 int main() {
+
+    struct jetclk clock = {0};	
 
     int dev = open("/dev/jetclocks", O_WRONLY);
     if(dev < 0) {
@@ -198,9 +198,9 @@ int main() {
 
 #include "jetclocks.h"
 
-struct jetclk clock = {0};
-
 int main() {
+
+    struct jetclk clock = {0};
 
     int dev = open("/dev/jetclocks", O_WRONLY);
     if(dev < 0) {
@@ -231,9 +231,9 @@ int main() {
 
 #include "jetclocks.h"
 
-struct jetclk clock = {0};
-
 int main() {
+
+    struct jetclk clock = {0};
 
     int dev = open("/dev/jetclocks", O_WRONLY);
     if(dev < 0) {
@@ -263,9 +263,9 @@ int main() {
 
 #include "jetclocks.h"
 
-struct jetclk clock = {0};
-
 int main() {
+
+    struct jetclk clock = {0};
 
     int dev = open("/dev/jetclocks", O_WRONLY);
     if(dev < 0) {
