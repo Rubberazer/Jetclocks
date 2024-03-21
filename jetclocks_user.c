@@ -11,9 +11,9 @@
 
 #include "jetclocks.h"
 
-struct jetclk clock = {0};
-
 int main() {
+    
+    struct jetclk clock = {0};
 
     int dev = open("/dev/jetclocks", O_WRONLY);
     if(dev < 0) {
