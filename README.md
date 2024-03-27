@@ -108,7 +108,7 @@ This module is basically a platform driver and makes use of the device tree, so 
     ```
     clock-names  clocks  compatible  name  status
     ```
-    
+
 <h2 align="left">COMPILE THE MODULE:</h2>
 
 To compile the module just:
@@ -121,36 +121,26 @@ To compile the module just:
 
 To insert the module:
 
-
     sudo insmod jetclocks.ko
-
 
 If you type a:
 
-    
     sudo dmesg
 
-   
 You should see something like below, you can ignore the "tainting kernel" message, this just means that is not signed (out of tree module), it doesn't have any practical implications:
 
-    
     Probing jetclocks
     jetclocks module loaded
 
-    
 To remove the module:
 
-   
     sudo rmmod jetclocks
 
-    
 <h2 align="left">USE THE MODULE:</h2>
 
 This module is all about using it from user space, there are 3 basic operations that you can perform from your user space applications that interact with this module. You are going to need a list with valid clock names, you can find this at [clock_names.md](https://github.com/Rubberazer/Jetclocks/blob/main/clock_names.md). There is also a sample application here [jetclocks_user](https://github.com/Rubberazer/Jetclocks/blob/main/jetclocks_user.c), to verify whether a clock is enabled/disabled, clock rate and other parameters, you can type the following from the shell, for instance to check the status of clock spi1:
 
-
      sudo cat /sys/kernel/debug/bpmp/debug/clk/clk_tree | grep spi1
-
 
 **LIMITATIONS**: you might not be able to enable or disable clocks already enabled (in use by some other peripheral), this is due to the fact that the module is not going to be able to get the clock handler. So basically, if some clock is already disabled you should be able to enable and disable it from that point, but not if it is already in use by something else.
 
