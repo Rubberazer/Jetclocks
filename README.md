@@ -25,8 +25,11 @@ This module is basically a platform driver and makes use of the device tree, so 
 
 - First of all, clone/download this module sources anywhere in your Orin, say to your home directory:
 
-  	cd ~/
-	git clone https://github.com/Rubberazer/Jetclocks.git
+    ```
+    cd ~/
+    git clone https://github.com/Rubberazer/Jetclocks.git
+
+    ```
 
 - Download the Linux for Tegra kernel sources according the version of the kernel running on your Orin, all versions can be downloaded directly from: https://developer.nvidia.com/embedded/jetson-linux-archive
 
