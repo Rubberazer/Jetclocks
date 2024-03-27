@@ -28,7 +28,6 @@ This module is basically a platform driver and makes use of the device tree, so 
     ```
     cd ~/
     git clone https://github.com/Rubberazer/Jetclocks.git
-
     ```
 
 - Download the Linux for Tegra kernel sources according the version of the kernel running on your Orin, all versions can be downloaded directly from: https://developer.nvidia.com/embedded/jetson-linux-archive
@@ -40,14 +39,12 @@ This module is basically a platform driver and makes use of the device tree, so 
     ```
     cd ~/Jetclocks
     cpp -nostdinc -I ~/Linux_for_Tegra/source/public/hardware/nvidia/soc/t23x/kernel-include/ -undef -x assembler-with-cpp jetclocks.dtsi  jetclocks.dtsi.new
-
     ```
 
 - Compile overlay:
 
     ```
     dtc -I dts -O dtb ./jetclocks.dtsi.new -o ./jetclocks.dtbo
-
     ```
 
 - Check current device tree in use:
@@ -98,7 +95,6 @@ This module is basically a platform driver and makes use of the device tree, so 
     sudo cp jetclocks.dtbo /boot/dtb
     cd /boot/dtb
     sudo fdtoverlay -i kernel_tegra234-p3767-0004-p3768-0000-a0.dtb -o new.dtb jetclocks.dtbo
-
     ```
 
 - Make sure that everything is OK, if you corrupt your device tree and your backup label in extlinux.conf is not correct you will be in trouble.
@@ -107,12 +103,10 @@ This module is basically a platform driver and makes use of the device tree, so 
 
     ```
     ls /proc/device-tree/jetclocks/
-
     ```
     If everything went OK, you should see:
     ```
     clock-names  clocks  compatible  name  status
-
     ```
     
 <h2 align="left">COMPILE THE MODULE:</h2>
