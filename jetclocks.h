@@ -18,7 +18,7 @@ struct jetclk {
     int clk_enabled;
     unsigned long clk_rate;
     unsigned long clk_set_rate;
-    char clk[20];
+    char clk[30];
 };
 
 #define CLK_ENABLE		_IOW('{', 1, struct jetclk *)
