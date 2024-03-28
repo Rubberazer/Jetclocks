@@ -170,7 +170,7 @@ int main() {
 
     strncpy(clock.clk, "spi1", sizeof(clock.clk));
     ioctl(dev, CLK_IS_ENABLED, &clock);
-    printf("clock %s status(0 disabled, 1 enabled): %d\n",clock.clk, clock.clk_enabled);
+    printf("clock: %s status(0 disabled, 1 enabled): %d\n",clock.clk, clock.clk_enabled);
  
     close(dev);
     return 0;
@@ -202,7 +202,7 @@ int main() {
     
     strncpy(clock.clk, "spi1", sizeof(clock.clk));
     ioctl(dev, CLK_ENABLE, &clock);
-    printf("Enabling clock %s: \n",clock.clk);
+    printf("Enabling clock: %s \n",clock.clk);
 
     close(dev);
     return 0;
@@ -235,7 +235,7 @@ int main() {
     
     strncpy(clock.clk, "spi1", sizeof(clock.clk));
     ioctl(dev, CLK_DISABLE, &clock);
-    printf("Disabling clock %s: \n",clock.clk);
+    printf("Disabling clock: %s \n",clock.clk);
 
     close(dev);
     return 0;
@@ -269,12 +269,12 @@ int main() {
     clock.clk_set_rate = 40800000; //Default is 81600000
 
     ioctl(dev, CLK_SET_RATE, &clock);
-    printf("Setting rate: %lu on clock %s: \n",clock.clk_set_rate, clock.clk);
+    printf("Setting rate: %lu on clock: %s \n",clock.clk_set_rate, clock.clk);
 
     /* Checking current rate on clock "spi1" */
 
     ioctl(dev, CLK_GET_RATE, &clock);
-    printf("Rate on clock %s is %lu\n",clock.clk, clock.clk_rate);
+    printf("Rate on clock: %s is %lu\n",clock.clk, clock.clk_rate);
  
     close(dev);
     return 0;
