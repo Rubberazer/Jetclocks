@@ -38,13 +38,13 @@ This module is basically a platform driver and makes use of the device tree, so 
 
     ```
     cd ~/Jetclocks
-    cpp -nostdinc -I ~/Linux_for_Tegra/source/public/hardware/nvidia/soc/t23x/kernel-include/ -undef -x assembler-with-cpp jetclocks.dtsi  jetclocks.dtsi.new
+    cpp -nostdinc -I ~/Linux_for_Tegra/source/public/hardware/nvidia/soc/t23x/kernel-include/ -undef -x assembler-with-cpp jetclocks.dts  jetclocks.dts.new
     ```
 
 - Compile overlay:
 
     ```
-    dtc -I dts -O dtb ./jetclocks.dtsi.new -o ./jetclocks.dtbo
+    dtc -I dts -O dtb ./jetclocks.dts.new -o ./jetclocks.dtbo
     ```
 
 - Check current device tree in use:
