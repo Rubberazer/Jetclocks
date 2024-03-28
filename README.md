@@ -53,7 +53,7 @@ This module is basically a platform driver and makes use of the device tree, so 
     sudo nano /boot/extlinux/extlinux.conf
     ```
 
-- You should have something like:
+- You should have something like below, on the FDT line you will also see where your device tree blob is located and its name, this will be used later:
 
   TIMEOUT 30
   DEFAULT primary
