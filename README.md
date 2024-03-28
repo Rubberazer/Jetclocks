@@ -26,7 +26,7 @@ This module is basically a platform driver and makes use of the device tree, so 
 - First of all, clone/download this module sources anywhere in your Orin, say to your home directory:
 
     ```
-    cd ~ \
+    cd ~ && \
     git clone https://github.com/Rubberazer/Jetclocks.git
     ```
 
@@ -37,7 +37,7 @@ This module is basically a platform driver and makes use of the device tree, so 
 - Preprocess the overlay file with some kernel headers:
 
     ```
-    cd ~/Jetclocks \
+    cd ~/Jetclocks && \
     cpp -nostdinc -I ~/Linux_for_Tegra/source/public/hardware/nvidia/soc/t23x/kernel-include/ -undef -x assembler-with-cpp jetclocks.dts  jetclocks.dts.new
     ```
 
@@ -91,9 +91,9 @@ This module is basically a platform driver and makes use of the device tree, so 
 - Apply overlay blob (dtbo) to main dt blob
 
     ```
-    cd ~/Jetclocks \
-    sudo cp jetclocks.dtbo /boot/dtb \
-    cd /boot/dtb \
+    cd ~/Jetclocks && \
+    sudo cp jetclocks.dtbo /boot/dtb && \
+    cd /boot/dtb && \
     sudo fdtoverlay -i kernel_tegra234-p3767-0004-p3768-0000-a0.dtb -o new.dtb jetclocks.dtbo
     ```
 
@@ -113,7 +113,7 @@ This module is basically a platform driver and makes use of the device tree, so 
 
 To compile the module just:
 
-    cd ~ \
+    cd ~/Jetclocks && \
     make
 
 
