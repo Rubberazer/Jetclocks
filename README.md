@@ -88,7 +88,7 @@ This module is basically a platform driver and makes use of the device tree, so 
 
   ...
 	
-- Apply overlay blob (dtbo) to main dt blob
+- Apply overlay blob (dtbo) to main dt blob, here on the 4th line the name of the original .dtb file is the one you saw before in your extlinux.conf:
 
     ```
     cd ~/Jetclocks && \
