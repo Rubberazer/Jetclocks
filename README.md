@@ -34,6 +34,8 @@ This module is basically a platform driver and makes use of the device tree, so 
 
 - Unzip de sources, for instance on your /home directory, you should get a folder looking like ~/Linux_for_Tegra/ with all the kernel sources inside
 
+- NOTE: A PRECOMPILED VERSION OF THE OVERLAY IS PROVIDED FOR CONVENIENCE (jetclocks.dtbo), YOU CAN SKIP OVER SOME OF THE FOLLOWING STEPS. 
+
 - Preprocess the overlay file with some kernel headers:
 
     ```
