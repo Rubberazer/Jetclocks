@@ -34,10 +34,10 @@ This module is basically a platform driver and makes use of the device tree, so 
 
 There is an option to install the module automatically with make, this would include applying the overlay to the main dtb blob and also modifying the /boot/extlinux/extlinux.conf file so it gets loaded at next reboot, if you want to do it manually, you can skip the next step and just go through the process along the DEVICE TREE and COMPILE sections.
 
-    ```
+
     cd ~/Jetclocks && \
     make && sudo make install
-    ```
+
 
 <h2 align="left">DEVICE TREE:</h2>
 
