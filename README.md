@@ -30,7 +30,7 @@ This module is basically a platform driver and makes use of the device tree, so 
     git clone https://github.com/Rubberazer/Jetclocks.git
     ```
 
-- There is an option to do all the following steps automatically, this would include applying the overlay to the main dtb blob and also modifying the /boot/extlinux/extlinux.conf file so it gets loaded at next reboot, the manual way of doing all this is explained on this section. First compile with make and then sudo make install.
+- There is an option to do all the following steps automatically, this would include applying the overlay to the main dtb blob and also modifying the /boot/extlinux/extlinux.conf file so it gets loaded at next reboot, if you want to do it manually, you can skip the next step and just go through the process along this README.
 
     ```
     cd ~/Jetclocks && \
