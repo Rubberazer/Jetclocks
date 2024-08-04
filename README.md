@@ -17,7 +17,7 @@ This module is based on the NVIDIA MODS kernel driver by NVIDIA CORPORATION. For
 - Set clock rate in Hz
 - Get current clock rate in Hz
 
-<h2 align="left">DEVICE TREE:</h2>
+<h2 align="left">GETTING STARTED:</h2>
 
 This module is basically a platform driver and makes use of the device tree, so the first step is to compile the device tree overlay and use it to patch the main device tree blob, there are several ways of going about this, the following one has been tested and it doesn't imply reflashing or recompiling the whole kernel.
 
@@ -30,13 +30,16 @@ This module is basically a platform driver and makes use of the device tree, so 
     git clone https://github.com/Rubberazer/Jetclocks.git
     ```
 
-- There is an option to do all the following steps automatically, this would include applying the overlay to the main dtb blob and also modifying the /boot/extlinux/extlinux.conf file so it gets loaded at next reboot, if you want to do it manually, you can skip the next step and just go through the process along this README.
+<h3 align="left">AUTOMATIC INSTALL:</h3>
+
+There is an option install the module automatically with make, this would include applying the overlay to the main dtb blob and also modifying the /boot/extlinux/extlinux.conf file so it gets loaded at next reboot, if you want to do it manually, you can skip the next step and just go through the process along the DEVICE TREE and COMPILE sections.
 
     ```
     cd ~/Jetclocks && \
     make && sudo make install
     ```
 
+<h2 align="left">DEVICE TREE:</h2>
 
 - Download the Linux for Tegra kernel sources according the version of the kernel running on your Orin, all versions can be downloaded directly from: https://developer.nvidia.com/embedded/jetson-linux-archive
 
@@ -129,6 +132,8 @@ To compile the module just:
 
 <h2 align="left">DEPLOYMENT:</h2>
 
+As mentioned before, you can try the automatic proccess as shown here: [Automatic install](#automatic-install) but you can also do it manually just to try the module before installing it. 
+
 To insert the module:
 
     sudo insmod jetclocks.ko
@@ -145,6 +150,13 @@ You should see something like below, you can ignore the "tainting kernel" messag
 To remove the module:
 
     sudo rmmod jetclocks
+
+<h2 align="left">UNINSTALL THE MODULE:</h2>
+You can always revert the process manually but there is also a make option to do it automatically:
+
+    '''
+    sudo make uninstall
+    '''
 
 <h2 align="left">USE THE MODULE:</h2>
 
