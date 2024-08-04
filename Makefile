@@ -30,7 +30,7 @@ install:
 		echo "`awk '/LABEL primary/{f=1} /APPEND/{f=0;print} f' /boot/extlinux/extlinux.conf | sed '/#/d'`" > $(PWD)/extlinux.conf.temp;\
 		sed -i 's/LABEL\sprimary/LABEL jetclocks/g' $(PWD)/extlinux.conf.temp;\
 		sed -i 's/MENU\sLABEL\sjetclocks/MENU LABEL primary/g' $(PWD)/extlinux.conf.temp;\
-		sed -i '/INITRD/a\      FDT /boot/dtb/jetclocks.dtb' $(PWD)/extlinux.conf.temp;\
+		sed -i '/LINUX/a\      FDT /boot/dtb/jetclocks.dtb' $(PWD)/extlinux.conf.temp;\
 		echo "`cat $(PWD)/extlinux.conf.temp`" >> /boot/extlinux/$(EXTFILE);\
 		sed -i 's/DEFAULT\sprimary/DEFAULT jetclocks/g' /boot/extlinux/$(EXTFILE);\
 		rm -f $(PWD)/extlinux.conf.temp;\
@@ -44,3 +44,9 @@ uninstall:
 	depmod -a
 	@echo "$(JETFILE) removed"	
 	@echo "/etc/modules-load.d/jetclocks.conf removed"
+	$(eval EXTFILE := $(shell find /boot/extlinux -name "*jetclocks.backup" -exec basename {} \;))
+	@cp /boot/extlinux/$(EXTFILE) /boot/extlinux/extlinux.conf
+	@echo "/boot/extlinux/$(EXTLIFE) restored to /boot/extlinux/extlinux.conf"
+	$(eval DTBFILE := $(shell find /boot/dtb -name "jetclocks.dtb"  -exec basename {} \;))
+	@rm -f /boot/dtb/$(DTBFILE)
+	@echo "/boot/dtb/$(DTBFILE) removed"
