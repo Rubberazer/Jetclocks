@@ -154,9 +154,8 @@ To remove the module:
 <h2 align="left">UNINSTALL THE MODULE:</h2>
 You can always revert the process manually but there is also a make option to do it automatically:
 
-    ```
+
     sudo make uninstall
-    ```
 
 <h2 align="left">USE THE MODULE:</h2>
 
