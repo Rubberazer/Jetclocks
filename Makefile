@@ -22,13 +22,14 @@ install:
 	@echo "Applying overlay blob to: /boot/dtb/$(DTBFILE)"
 	@fdtoverlay -i /boot/dtb/$(DTBFILE) -o /boot/dtb/jetclocks.dtb $(PWD)/overlay_blob/jetclocks.dtbo
 	$(eval EXTFILE := $(shell find /boot/extlinux -name "extlinux.conf" -exec basename {} \;))
-	$(eval CHECKER := $(shell grep /boot/extlinux/extlinux.conf -e "DEFAULT jetclocks"))
+	$(eval CHECKER := $(shell grep /boot/extlinux/$(EXTFILE) -e "DEFAULT jetclocks"))
 	@if [ "$(CHECKER)" = "" ]; then\
 		echo "Creating backup of: /boot/extlinux/$(EXTFILE) -> /boot/extlinux/$(EXTFILE).jetclocks.backup";\
 		cp /boot/extlinux/$(EXTFILE) /boot/extlinux/$(EXTFILE).jetclocks.backup;\
 		echo "Modifying: /boot/extlinux/$(EXTFILE)";\
 		echo "`awk '/LABEL primary/{f=1} /APPEND/{f=0;print} f' /boot/extlinux/extlinux.conf | sed '/#/d'`" > $(PWD)/extlinux.conf.temp;\
 		sed -i 's/LABEL\sprimary/LABEL jetclocks/g' $(PWD)/extlinux.conf.temp;\
+		sed -i 's/MENU\sLABEL\sjetclocks/MENU LABEL primary/g' $(PWD)/extlinux.conf.temp;\
 		sed -i '/INITRD/a\      FDT /boot/dtb/jetclocks.dtb' $(PWD)/extlinux.conf.temp;\
 		echo "`cat $(PWD)/extlinux.conf.temp`" >> /boot/extlinux/$(EXTFILE);\
 		sed -i 's/DEFAULT\sprimary/DEFAULT jetclocks/g' /boot/extlinux/$(EXTFILE);\
