@@ -30,6 +30,14 @@ This module is basically a platform driver and makes use of the device tree, so 
     git clone https://github.com/Rubberazer/Jetclocks.git
     ```
 
+- There is an option to do all the following steps automatically, this would include applying the overlay to the main dtb blob and also modifying the /boot/extlinux/extlinux.conf file so it gets loaded at next reboot, the manual way of doing all this is explained on this section. First compile with make and then sudo make install.
+
+    ```
+    cd ~/Jetclocks && \
+    make && sudo make install
+    ```
+
+
 - Download the Linux for Tegra kernel sources according the version of the kernel running on your Orin, all versions can be downloaded directly from: https://developer.nvidia.com/embedded/jetson-linux-archive
 
 - Unzip de sources, for instance on your /home directory, you should get a folder looking like ~/Linux_for_Tegra/ with all the kernel sources inside

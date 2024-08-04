@@ -137,59 +137,59 @@ static long jetclocks_ioctl(struct file *filp, unsigned int cmd, unsigned long a
     switch(cmd){
     case CLK_ENABLE:
 	if(copy_from_user(&clock, (struct jetclk *) arg, sizeof(clock))) {
-	    pr_err("Jetclocks - Error getting clock name\n");
+	    pr_err("jetclocks - Error getting clock name\n");
 	    return -EFAULT;
 	}
 	
 	ret = clock_enable(clock.clk, jetclocks_dev);
 	if (!(ret)) {
-	    pr_info("Jetclocks - clock %s enabled\n", clock.clk);
+	    pr_info("jetclocks - clock %s enabled\n", clock.clk);
 	}
 	
 	break;
     case CLK_DISABLE:
 	if(copy_from_user(&clock, (struct jetclk *) arg, sizeof(clock))) {
-	    pr_err("Jetclocks - Error getting clock name\n");
+	    pr_err("jetclocks - Error getting clock name\n");
 	    return -EFAULT;
 	}
 
 	ret = clock_disable(clock.clk, jetclocks_dev);
 	if (!(ret)) {
-	    pr_info("Jetclocks - clock %s disabled\n", clock.clk);
+	    pr_info("jetclocks - clock %s disabled\n", clock.clk);
 	}
 	break;
     case CLK_IS_ENABLED:
 	if(copy_from_user(&clock, (struct jetclk *) arg, sizeof(clock))) {
-	    pr_err("Jetclocks - Error getting clock name\n");
+	    pr_err("jetclocks - Error getting clock name\n");
 	    return -EFAULT;
 	}
 
 	clock.clk_enabled = is_clock_enabled(clock.clk, jetclocks_dev);
 	if(copy_to_user((struct jetclk *) arg, &clock, sizeof(clock))) { 
-	    pr_err("Jetclocks - Error sending clock %s status\n", clock.clk);
+	    pr_err("jetclocks - Error sending clock %s status\n", clock.clk);
 	    return -EFAULT;
 	}
 	break;
     case CLK_SET_RATE:
 	if(copy_from_user(&clock, (struct jetclk *) arg, sizeof(clock))) {
-	    pr_err("Jetclocks - Error getting clock name\n");
+	    pr_err("jetclocks - Error getting clock name\n");
 	    return -EFAULT;
 	}
 	
 	ret = clock_set_rate(clock.clk, jetclocks_dev, clock.clk_set_rate);
 	if (!(ret)) {
-	    pr_info("Jetclocks - clock %s rate set\n", clock.clk);
+	    pr_info("jetclocks - clock %s rate set\n", clock.clk);
 	}
 	break;
     case CLK_GET_RATE:
 	if(copy_from_user(&clock, (struct jetclk *) arg, sizeof(clock))) {
-	    pr_err("Jetclocks - Error getting clock name\n");
+	    pr_err("jetclocks - Error getting clock name\n");
 	    return -EFAULT;
 	}
 	
 	clock.clk_rate = clock_get_rate(clock.clk, jetclocks_dev);
 	if(copy_to_user((struct jetclk *) arg, &clock, sizeof(clock))) { 
-	    pr_err("Jetclocks - Error sending clock %s rate\n", clock.clk);
+	    pr_err("jetclocks - Error sending clock %s rate\n", clock.clk);
 	    return -EFAULT;
 	}
 	break;
